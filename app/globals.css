@@ -3,17 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #f7f1e8;
-  --foreground: #1f1a17;
-
-  --brand: #7a2338;
-  --brand-dark: #611b2c;
-
-  --muted-foreground: #6c5f58;
-  --border: #ddd1c2;
-
-  --card-soft: #fbf7f1;
-  --card-hover: #f6eee4;
+  color-scheme: light;
 }
 
 html {
@@ -21,19 +11,84 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  @apply bg-stone-50 text-stone-900 antialiased;
+  background:
+    radial-gradient(circle at top left, rgba(244, 63, 94, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(217, 119, 6, 0.08), transparent 24%),
+    linear-gradient(to bottom, #fcfbf8, #f8f5f0);
 }
 
-* {
-  border-color: var(--border);
+@layer base {
+  * {
+    @apply border-stone-200;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply tracking-tight text-stone-900;
+  }
+
+  p {
+    @apply text-stone-600;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
 }
 
-::selection {
-  background: rgba(122, 35, 56, 0.18);
-}
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
 
-a,
-button {
-  -webkit-tap-highlight-color: transparent;
+  .section-title {
+    @apply text-3xl font-semibold sm:text-4xl;
+  }
+
+  .section-copy {
+    @apply text-base leading-7 sm:text-lg sm:leading-8;
+  }
+
+  .soft-card {
+    @apply rounded-3xl border border-stone-200 bg-white shadow-sm;
+  }
+
+  .soft-card-hover {
+    @apply rounded-3xl border border-stone-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md;
+  }
+
+  .pill {
+    @apply inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-sm font-medium text-rose-800;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-800;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-800 transition hover:border-stone-400 hover:bg-stone-100;
+  }
+
+  .nav-pill {
+    @apply inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:bg-stone-100 hover:text-stone-900;
+  }
+
+  .nav-pill-active {
+    @apply inline-flex items-center rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-800;
+  }
+
+  .feature-icon {
+    @apply flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-xl;
+  }
+
+  .muted-label {
+    @apply text-sm font-medium uppercase tracking-[0.16em] text-stone-500;
+  }
+
+  .app-section {
+    @apply py-12 sm:py-16;
+  }
 }

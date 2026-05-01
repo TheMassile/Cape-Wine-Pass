@@ -1,167 +1,236 @@
 import Link from "next/link";
-import AppHeader from "@/app/components/AppHeader";
+
+const features = [
+  {
+    icon: "📍",
+    title: "Track your progress",
+    description:
+      "Tick off estates region by region and see how close you are to completing each area.",
+  },
+  {
+    icon: "📝",
+    title: "Save tasting notes",
+    description:
+      "Keep favourite red, white, rosé and comments for every estate you visit.",
+  },
+  {
+    icon: "🤍",
+    title: "Keep favourites",
+    description:
+      "Mark the estates you love most and sort your visits by favourites later.",
+  },
+  {
+    icon: "🏅",
+    title: "Unlock badges",
+    description:
+      "Earn milestone badges and build your own personal wine journey as you go.",
+  },
+  {
+    icon: "👨‍👩‍👧",
+    title: "Find kid-friendly spots",
+    description:
+      "Vote on kid-friendly estates and make family planning a little easier.",
+  },
+  {
+    icon: "🗺️",
+    title: "Browse by region",
+    description:
+      "Open Stellenbosch, Franschhoek, Constantia and more to explore all estates in one place.",
+  },
+];
+
+const steps = [
+  {
+    number: "01",
+    title: "Explore",
+    description:
+      "Browse wine farms by region and discover places you want to visit.",
+  },
+  {
+    number: "02",
+    title: "Record",
+    description:
+      "Mark estates as visited, save tasting notes, and remember what stood out.",
+  },
+  {
+    number: "03",
+    title: "Build your pass",
+    description:
+      "Track progress, earn badges, and create your own Western Cape wine journey.",
+  },
+];
 
 export default function HomePage() {
   return (
-    <>
-      <AppHeader />
-
-      <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-        <section className="mx-auto max-w-6xl px-6 py-16">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+    <main>
+      <section className="app-section">
+        <div className="page-shell">
+          <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
             <div>
-              <div className="inline-flex items-center rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] shadow-sm">
-                Western Cape wine farm tracker
-              </div>
+              <div className="pill">Western Cape wine farm tracker</div>
 
-              <h1 className="mt-6 text-5xl font-semibold leading-tight tracking-tight">
+              <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
                 Discover, track and remember the best wine farms in the Cape.
               </h1>
 
-              <p className="mt-5 max-w-xl text-lg leading-8 text-[var(--muted-foreground)]">
+              <p className="section-copy mt-5 max-w-2xl">
                 Cape Wine Pass helps you keep track of visited estates, save
                 notes and favourites, unlock badges, and build your own wine
                 journey across the Western Cape.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/regions"
-                  className="inline-flex items-center rounded-xl bg-[var(--brand)] px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-[var(--brand-dark)] active:translate-y-[1px]"
-                >
+                <Link href="/regions" className="btn-primary">
                   Browse regions
                 </Link>
-
-                <Link
-                  href="/login"
-                  className="inline-flex items-center rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-medium text-[var(--foreground)] shadow-sm transition hover:bg-[var(--card-hover)] active:translate-y-[1px]"
-                >
+                <Link href="/login" className="btn-secondary">
                   Sign in / Sign up
                 </Link>
               </div>
+
+              <div className="mt-8 grid max-w-2xl gap-4 sm:grid-cols-3">
+                <div className="soft-card p-4">
+                  <div className="muted-label">Discover</div>
+                  <div className="mt-2 text-lg font-semibold text-stone-900">
+                    Regions
+                  </div>
+                  <p className="mt-2 text-sm leading-6">
+                    Explore estates area by area.
+                  </p>
+                </div>
+
+                <div className="soft-card p-4">
+                  <div className="muted-label">Remember</div>
+                  <div className="mt-2 text-lg font-semibold text-stone-900">
+                    Notes
+                  </div>
+                  <p className="mt-2 text-sm leading-6">
+                    Save wines, comments and favourites.
+                  </p>
+                </div>
+
+                <div className="soft-card p-4">
+                  <div className="muted-label">Progress</div>
+                  <div className="mt-2 text-lg font-semibold text-stone-900">
+                    Badges
+                  </div>
+                  <p className="mt-2 text-sm leading-6">
+                    Earn milestones as you go.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="grid gap-4">
-              <div className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
-                <div className="text-sm text-[var(--muted-foreground)]">
-                  Track your progress
+            <div className="soft-card overflow-hidden">
+              <div className="bg-gradient-to-br from-stone-900 via-rose-900 to-amber-700 p-8 text-white">
+                <div className="text-sm uppercase tracking-[0.18em] text-white/70">
+                  Your wine journey
                 </div>
-                <div className="mt-2 text-2xl font-semibold">
-                  Tick off estates region by region
-                </div>
-                <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-                  See what you have visited, what is still left, and how close
-                  you are to completing a region.
+                <h2 className="mt-3 text-3xl font-semibold text-white">
+                  One place to collect your Cape wine memories.
+                </h2>
+                <p className="mt-4 max-w-md text-sm leading-7 text-white/80">
+                  Keep everything together — estates visited, tasting notes,
+                  favourites, progress, and family-friendly discoveries.
                 </p>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
-                  <div className="text-2xl">🍷</div>
-                  <div className="mt-3 font-semibold">Save tasting notes</div>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                    Keep favourite red, white, rosé, and comments for each
-                    estate you visit.
-                  </p>
+              <div className="grid gap-4 p-6 sm:grid-cols-2">
+                <div className="rounded-2xl bg-stone-50 p-4">
+                  <div className="text-sm text-stone-500">Save notes</div>
+                  <div className="mt-2 text-xl font-semibold text-stone-900">
+                    Favourite wines
+                  </div>
                 </div>
 
-                <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
-                  <div className="text-2xl">♥</div>
-                  <div className="mt-3 font-semibold">Keep favourites</div>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                    Mark the estates you love most and sort your visits by
-                    favourites later.
-                  </p>
+                <div className="rounded-2xl bg-stone-50 p-4">
+                  <div className="text-sm text-stone-500">Track visits</div>
+                  <div className="mt-2 text-xl font-semibold text-stone-900">
+                    Region progress
+                  </div>
                 </div>
 
-                <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
-                  <div className="text-2xl">🏅</div>
-                  <div className="mt-3 font-semibold">Unlock badges</div>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                    Earn milestone badges and track your wine journey as you go.
-                  </p>
+                <div className="rounded-2xl bg-stone-50 p-4">
+                  <div className="text-sm text-stone-500">Keep favourites</div>
+                  <div className="mt-2 text-xl font-semibold text-stone-900">
+                    Loved estates
+                  </div>
                 </div>
 
-                <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
-                  <div className="text-2xl">👨‍👩‍👧</div>
-                  <div className="mt-3 font-semibold">Find kid-friendly spots</div>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                    Vote on kid-friendly estates and make family planning a bit
-                    easier.
-                  </p>
+                <div className="rounded-2xl bg-stone-50 p-4">
+                  <div className="text-sm text-stone-500">Unlock goals</div>
+                  <div className="mt-2 text-xl font-semibold text-stone-900">
+                    Milestone badges
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="border-t border-[var(--border)] bg-white">
-          <div className="mx-auto max-w-6xl px-6 py-14">
-            <div className="grid gap-6 md:grid-cols-3">
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-soft)] p-5">
-                <div className="text-sm font-medium text-[var(--brand)]">
-                  1. Explore
-                </div>
-                <h2 className="mt-2 text-xl font-semibold">Browse by region</h2>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                  Open Stellenbosch, Franschhoek, Constantia and more to see
-                  all estates in one place.
-                </p>
-              </div>
+      <section className="app-section pt-0">
+        <div className="page-shell">
+          <div className="mb-8">
+            <div className="muted-label">Why use it</div>
+            <h2 className="section-title mt-2">Everything in one clean place</h2>
+            <p className="section-copy mt-4 max-w-3xl">
+              Instead of forgetting where you have been, what you liked, or
+              which estates are good for family visits, Cape Wine Pass helps you
+              keep your wine life organised.
+            </p>
+          </div>
 
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-soft)] p-5">
-                <div className="text-sm font-medium text-[var(--brand)]">
-                  2. Record
-                </div>
-                <h2 className="mt-2 text-xl font-semibold">Save visits and notes</h2>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                  Mark estates as visited, add tasting notes, and remember what
-                  stood out.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-soft)] p-5">
-                <div className="text-sm font-medium text-[var(--brand)]">
-                  3. Progress
-                </div>
-                <h2 className="mt-2 text-xl font-semibold">Build your wine pass</h2>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                  Watch your regions fill up, collect badges, and create your
-                  own Western Cape wine story.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-10 rounded-3xl border border-[var(--border)] bg-[var(--brand)] px-6 py-8 text-white shadow-sm">
-              <div className="max-w-3xl">
-                <h3 className="text-2xl font-semibold">
-                  Ready to start your Cape wine journey?
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {features.map((feature) => (
+              <div key={feature.title} className="soft-card-hover p-6">
+                <div className="feature-icon">{feature.icon}</div>
+                <h3 className="mt-4 text-xl font-semibold text-stone-900">
+                  {feature.title}
                 </h3>
-                <p className="mt-3 text-sm leading-7 text-white/85">
-                  Create an account, explore the regions, and start building
-                  your own personal wine pass.
-                </p>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href="/login"
-                    className="inline-flex items-center rounded-xl bg-white px-5 py-3 text-sm font-medium text-[var(--brand)] transition hover:bg-white/90 active:translate-y-[1px]"
-                  >
-                    Create account
-                  </Link>
-
-                  <Link
-                    href="/regions"
-                    className="inline-flex items-center rounded-xl border border-white/40 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10 active:translate-y-[1px]"
-                  >
-                    View regions
-                  </Link>
-                </div>
+                <p className="mt-3 text-sm leading-7">{feature.description}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="app-section">
+        <div className="page-shell">
+          <div className="soft-card p-6 sm:p-8 lg:p-10">
+            <div className="mb-8">
+              <div className="muted-label">How it works</div>
+              <h2 className="section-title mt-2">Build your wine pass in 3 steps</h2>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-3">
+              {steps.map((step) => (
+                <div
+                  key={step.number}
+                  className="rounded-3xl bg-stone-50 p-6 ring-1 ring-stone-200"
+                >
+                  <div className="text-sm font-semibold tracking-[0.18em] text-rose-700">
+                    {step.number}
+                  </div>
+                  <h3 className="mt-3 text-2xl font-semibold text-stone-900">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-7">{step.description}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/regions" className="btn-primary">
+                Start exploring
+              </Link>
+              <Link href="/login" className="btn-secondary">
+                Create an account
+              </Link>
             </div>
           </div>
-        </section>
-      </main>
-    </>
+        </div>
+      </section>
+    </main>
   );
 }
