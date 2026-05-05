@@ -1,36 +1,98 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AppHeader() {
-  return (
-    <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/85 backdrop-blur">
-      <div className="page-shell">
-        <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-600 to-amber-500 text-lg text-white shadow-sm">
-              🍷
-            </div>
+  const pathname = usePathname();
 
-            <div>
-              <div className="text-lg font-semibold text-stone-900">
-                Cape Wine Pass
-              </div>
-              <div className="text-sm text-stone-500">
-                Track your wine journey
-              </div>
-            </div>
+  const navLinks = [
+    { href: "/regions", label: "Regions" },
+    { href: "/visits", label: "My Visits" },
+    { href: "/badges", label: "Badges" },
+  ];
+
+  return (
+    <header
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 40,
+        borderBottom: "1px solid rgba(184,150,90,0.15)",
+        background: "rgba(26,20,16,0.97)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      }}
+    >
+      <div className="page-shell">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "1.1rem 0",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}
+        >
+          {/* Logo */}
+          <Link
+            href="/"
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: "1.25rem",
+              fontWeight: 400,
+              letterSpacing: "0.12em",
+              color: "#D4AE7A",
+              textDecoration: "none",
+              lineHeight: 1,
+            }}
+          >
+            Cape Wine Pass
           </Link>
 
-          <nav className="flex flex-wrap items-center gap-2">
-            <Link href="/regions" className="nav-pill">
-              Regions
-            </Link>
-            <Link href="/visits" className="nav-pill">
-              My Visits
-            </Link>
-            <Link href="/badges" className="nav-pill">
-              Badges
-            </Link>
-            <Link href="/login" className="nav-pill-active">
+          {/* Nav */}
+          <nav style={{ display: "flex", alignItems: "center", gap: "2rem", flexWrap: "wrap" }}>
+            {navLinks.map((link) => {
+              const isActive = pathname?.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  style={{
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontSize: "0.62rem",
+                    fontWeight: 400,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    textDecoration: "none",
+                    color: isActive ? "#D4AE7A" : "#8C8070",
+                    borderBottom: isActive ? "1px solid rgba(184,150,90,0.5)" : "none",
+                    paddingBottom: isActive ? "2px" : "0",
+                    transition: "color 0.2s",
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+
+            <Link
+              href="/login"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: "0.62rem",
+                fontWeight: 500,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                color: "#F5F0E8",
+                background: "#6B1A2A",
+                border: "1px solid #8C3042",
+                padding: "0.45rem 1.2rem",
+                transition: "background 0.2s",
+              }}
+            >
               Sign in
             </Link>
           </nav>
