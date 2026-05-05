@@ -208,12 +208,7 @@ export default function HomePage() {
             {features.map((f) => (
               <div
                 key={f.title}
-                style={{
-                  background: "#2C2420", padding: "2.5rem",
-                  transition: "background 0.25s",
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#3D3028")}
-                onMouseLeave={e => (e.currentTarget.style.background = "#2C2420")}
+                className="feature-cell"
               >
                 <div style={{
                   fontFamily: "'Cormorant Garamond', serif",
@@ -328,6 +323,14 @@ export default function HomePage() {
         @media (min-width: 1024px) {
           .hero-grid { grid-template-columns: 1.2fr 0.8fr !important; }
           .journey-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        .feature-cell {
+          background: #2C2420;
+          padding: 2.5rem;
+          transition: background 0.25s;
+        }
+        .feature-cell:hover {
+          background: #3D3028;
         }
       `}</style>
 
