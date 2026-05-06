@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import RegionsProgress from "./RegionsProgress";
-import AppHeader from "@/app/components/AppHeader";
 
 type RegionRow = {
   Region: string;
@@ -19,16 +18,17 @@ export default async function RegionsPage() {
 
   if (error) {
     return (
-      <>
-        <AppHeader />
-        <main className="min-h-screen p-6">
-          <div className="mx-auto max-w-3xl">
-            <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-              {error.message}
-            </p>
-          </div>
-        </main>
-      </>
+      <main style={{ minHeight: "100vh", padding: "3rem 1.5rem" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <p style={{
+            background: "rgba(192,57,43,0.15)",
+            border: "1px solid rgba(192,57,43,0.3)",
+            color: "#E07070", padding: "1rem 1.2rem", fontSize: "0.78rem"
+          }}>
+            {error.message}
+          </p>
+        </div>
+      </main>
     );
   }
 
@@ -46,27 +46,32 @@ export default async function RegionsPage() {
   const totalEstates = regions.reduce((sum, r) => sum + r.total, 0);
 
   return (
-    <>
-      <AppHeader />
+    <main style={{ minHeight: "100vh", padding: "3rem 1.5rem" }}>
+      <div style={{ maxWidth: "860px", margin: "0 auto" }}>
 
-      <main className="min-h-screen p-6">
-        <div className="mx-auto max-w-3xl">
-          <div className="flex items-baseline justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-semibold">Regions</h1>
-              <p className="mt-1 text-sm text-gray-600">
-                {totalEstates} estates across {regions.length} regions
-              </p>
-            </div>
+        {/* Page header */}
+        <div style={{ marginBottom: "0.5rem" }}>
+          <div style={{
+            fontSize: "0.6rem", letterSpacing: "0.25em",
+            textTransform: "uppercase", color: "#B8965A", marginBottom: "0.8rem"
+          }}>
+            Western Cape
           </div>
-
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to track visited estates and unlock progress.
+          <h1 style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "clamp(2.2rem, 5vw, 3.5rem)",
+            fontWeight: 300, color: "#F5F0E8",
+            lineHeight: 1.05, marginBottom: "0.5rem"
+          }}>
+            Wine <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>Regions</em>
+          </h1>
+          <p style={{ fontSize: "0.78rem", color: "#8C8070", letterSpacing: "0.05em" }}>
+            {totalEstates} estates across {regions.length} regions
           </p>
-
-          <RegionsProgress regions={regions} />
         </div>
-      </main>
-    </>
+
+        <RegionsProgress regions={regions} />
+      </div>
+    </main>
   );
 }
