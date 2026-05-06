@@ -246,7 +246,6 @@ export default function BadgesClient() {
                   color: earned ? "#F5F0E8" : "#8C8070",
                   marginBottom: "0.3rem",
                   fontFamily: "'Cormorant Garamond', serif",
-                  fontSize2: "0.95rem",
                 }}>
                   {m.label}
                 </div>
