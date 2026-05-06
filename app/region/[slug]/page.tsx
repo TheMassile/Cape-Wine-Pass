@@ -1,7 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import RegionClient from "./RegionClient";
-import AppHeader from "@/app/components/AppHeader";
 
 export type EstateRow = {
   "Estate ID": string;
@@ -23,29 +22,25 @@ export default async function RegionPage({
 
   if (!regionName) {
     return (
-      <>
-        <AppHeader />
-        <main className="min-h-screen p-6">
-          <div className="mx-auto max-w-4xl">
-            <p className="text-sm text-gray-600">Region not found (missing slug).</p>
-            <Link className="mt-4 inline-block underline text-sm" href="/regions">
-              ← Back to regions
-            </Link>
-          </div>
-        </main>
-      </>
+      <main style={{ minHeight: "100vh", padding: "3rem 1.5rem" }}>
+        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+          <p style={{ fontSize: "0.78rem", color: "#8C8070" }}>Region not found.</p>
+          <Link href="/regions" style={{ color: "#D4AE7A", fontSize: "0.72rem", marginTop: "1rem", display: "inline-block" }}>
+            ← Back to regions
+          </Link>
+        </div>
+      </main>
     );
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const { data, error } = await supabase
     .from("estates")
-    .select(
-      `"Estate ID","Estate Name","Region","Status","Appointment Only (Y/N)","Restaurant (Y/N)","Kid Friendly (Yes/No/Unknown)"`
-    )
+    .select(`"Estate ID","Estate Name","Region","Status","Appointment Only (Y/N)","Restaurant (Y/N)","Kid Friendly (Yes/No/Unknown)"`)
     .eq("Region", regionName)
     .neq("Status", "Closed")
     .order("Estate Name", { ascending: true });
@@ -53,33 +48,57 @@ export default async function RegionPage({
   const estates: EstateRow[] = (data ?? []) as EstateRow[];
 
   return (
-    <>
-      <AppHeader />
+    <main style={{ minHeight: "100vh", padding: "3rem 1.5rem" }}>
+      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
 
-      <main className="min-h-screen p-6">
-        <div className="mx-auto max-w-4xl">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-semibold">{regionName}</h1>
-              <p className="mt-1 text-sm text-gray-600">{estates.length} estates</p>
-            </div>
-          </div>
-
-          {error && (
-            <p className="mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-              {error.message}
-            </p>
-          )}
-
-          <div className="mt-6">
-            <RegionClient regionName={regionName} estates={estates} />
-          </div>
-
-          <Link className="mt-8 inline-block underline text-sm" href="/regions">
-            ← Back to regions
+        {/* Header */}
+        <div style={{ marginBottom: "2rem" }}>
+          <Link href="/regions" style={{
+            fontSize: "0.6rem", letterSpacing: "0.18em",
+            textTransform: "uppercase", color: "#8C8070",
+            textDecoration: "none", display: "inline-flex",
+            alignItems: "center", gap: "0.4rem",
+            marginBottom: "1.2rem", transition: "color 0.2s",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = "#D4AE7A")}
+          onMouseLeave={e => (e.currentTarget.style.color = "#8C8070")}
+          >
+            ← Regions
           </Link>
+
+          <div style={{
+            fontSize: "0.6rem", letterSpacing: "0.25em",
+            textTransform: "uppercase", color: "#B8965A", marginBottom: "0.6rem",
+          }}>
+            Western Cape
+          </div>
+
+          <h1 style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "clamp(2.2rem, 5vw, 3.5rem)",
+            fontWeight: 300, color: "#F5F0E8",
+            lineHeight: 1.05, marginBottom: "0.4rem",
+          }}>
+            {regionName}
+          </h1>
+
+          <p style={{ fontSize: "0.75rem", color: "#8C8070", letterSpacing: "0.05em" }}>
+            {estates.length} estates in this region
+          </p>
         </div>
-      </main>
-    </>
+
+        {error && (
+          <div style={{
+            background: "rgba(192,57,43,0.15)", border: "1px solid rgba(192,57,43,0.3)",
+            color: "#E07070", padding: "1rem", fontSize: "0.72rem", marginBottom: "1.5rem",
+          }}>
+            {error.message}
+          </div>
+        )}
+
+        <RegionClient regionName={regionName} estates={estates} />
+
+      </div>
+    </main>
   );
 }
