@@ -53,16 +53,7 @@ export default async function RegionPage({
 
         {/* Header */}
         <div style={{ marginBottom: "2rem" }}>
-          <Link href="/regions" style={{
-            fontSize: "0.6rem", letterSpacing: "0.18em",
-            textTransform: "uppercase", color: "#8C8070",
-            textDecoration: "none", display: "inline-flex",
-            alignItems: "center", gap: "0.4rem",
-            marginBottom: "1.2rem", transition: "color 0.2s",
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = "#D4AE7A")}
-          onMouseLeave={e => (e.currentTarget.style.color = "#8C8070")}
-          >
+          <Link href="/regions" className="back-link">
             ← Regions
           </Link>
 
@@ -99,6 +90,22 @@ export default async function RegionPage({
         <RegionClient regionName={regionName} estates={estates} />
 
       </div>
+
+      <style>{`
+        .back-link {
+          font-size: 0.6rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #8C8070;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          margin-bottom: 1.2rem;
+          transition: color 0.2s;
+        }
+        .back-link:hover { color: #D4AE7A; }
+      `}</style>
     </main>
   );
 }
