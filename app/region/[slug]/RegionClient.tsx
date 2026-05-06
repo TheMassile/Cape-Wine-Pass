@@ -244,7 +244,7 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
                       </button>
                     )}
 
-                    {summary.up >= 20 && (
+                    {summary.up >= 3 && (
                       <span style={{ fontSize: "0.5rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8CB87A", border: "1px solid rgba(140,184,122,0.3)", padding: "0.15rem 0.5rem" }}>
                         Kid-friendly
                       </span>

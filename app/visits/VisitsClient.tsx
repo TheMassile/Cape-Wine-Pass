@@ -336,7 +336,7 @@ export default function VisitsClient() {
                   </div>
                 </div>
 
-                {upvotes >= 20 && (
+                {upvotes >= 3 && (
                   <span style={{
                     fontSize: "0.55rem", letterSpacing: "0.18em", textTransform: "uppercase",
                     color: "#8CB87A", border: "1px solid rgba(140,184,122,0.35)",
