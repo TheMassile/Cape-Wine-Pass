@@ -8,185 +8,174 @@ type Props = {
   initialUpvotes?: number;
   initialDownvotes?: number;
   initialUserVote?: 1 | -1 | null;
+  requireVisited?: boolean;   // if true, block voting unless visited
+  visited?: boolean;          // whether user has visited this estate
 };
 
-type VoteRow = {
-  vote: number;
-};
+type VoteRow = { vote: number };
 
 export default function KidFriendlyVote({
   estateId,
   initialUpvotes = 0,
   initialDownvotes = 0,
   initialUserVote = null,
+  requireVisited = false,
+  visited = false,
 }: Props) {
-  const [upvotes, setUpvotes] = useState(initialUpvotes);
+  const [upvotes, setUpvotes]     = useState(initialUpvotes);
   const [downvotes, setDownvotes] = useState(initialDownvotes);
-  const [userVote, setUserVote] = useState<1 | -1 | null>(initialUserVote);
+  const [userVote, setUserVote]   = useState<1 | -1 | null>(initialUserVote);
   const [authChecked, setAuthChecked] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition]  = useTransition();
+  const [tooltip, setTooltip]     = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
-    async function loadVoteData() {
+    async function load() {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
+        const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user ?? null;
 
         const { data: allVotes } = await supabase
-          .from("estate_kid_friendly_votes")
-          .select("vote")
-          .eq("estate_id", estateId);
+          .from("estate_kid_friendly_votes").select("vote").eq("estate_id", estateId);
 
-        const voteRows = (allVotes ?? []) as VoteRow[];
-        const ups = voteRows.filter((row) => row.vote === 1).length;
-        const downs = voteRows.filter((row) => row.vote === -1).length;
+        const rows = (allVotes ?? []) as VoteRow[];
+        const ups   = rows.filter(r => r.vote === 1).length;
+        const downs = rows.filter(r => r.vote === -1).length;
 
         if (!user) {
-          if (!cancelled) {
-            setUpvotes(ups);
-            setDownvotes(downs);
-            setUserVote(null);
-            setAuthChecked(true);
-          }
+          if (!cancelled) { setUpvotes(ups); setDownvotes(downs); setUserVote(null); setAuthChecked(true); }
           return;
         }
 
-        const { data: myVoteRow } = await supabase
-          .from("estate_kid_friendly_votes")
-          .select("vote")
-          .eq("estate_id", estateId)
-          .eq("user_id", user.id)
-          .maybeSingle();
+        const { data: myRow } = await supabase
+          .from("estate_kid_friendly_votes").select("vote")
+          .eq("estate_id", estateId).eq("user_id", user.id).maybeSingle();
 
         if (!cancelled) {
-          setUpvotes(ups);
-          setDownvotes(downs);
-          setUserVote((myVoteRow?.vote as 1 | -1 | null) ?? null);
+          setUpvotes(ups); setDownvotes(downs);
+          setUserVote((myRow?.vote as 1 | -1 | null) ?? null);
           setAuthChecked(true);
         }
       } catch {
         if (!cancelled) {
-          setUpvotes(initialUpvotes);
-          setDownvotes(initialDownvotes);
-          setUserVote(initialUserVote);
-          setAuthChecked(true);
+          setUpvotes(initialUpvotes); setDownvotes(initialDownvotes);
+          setUserVote(initialUserVote); setAuthChecked(true);
         }
       }
     }
 
-    loadVoteData();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      loadVoteData();
-    });
-
-    return () => {
-      cancelled = true;
-      subscription.unsubscribe();
-    };
+    load();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => load());
+    return () => { cancelled = true; subscription.unsubscribe(); };
   }, [estateId, initialUpvotes, initialDownvotes, initialUserVote]);
 
   async function refreshCounts() {
     try {
       const { data } = await supabase
-        .from("estate_kid_friendly_votes")
-        .select("vote")
-        .eq("estate_id", estateId);
-
-      const voteRows = (data ?? []) as VoteRow[];
-      const ups = voteRows.filter((row) => row.vote === 1).length;
-      const downs = voteRows.filter((row) => row.vote === -1).length;
-
-      setUpvotes(ups);
-      setDownvotes(downs);
-    } catch {
-      // keep current values
-    }
-  }
-
-  function applyOptimisticChange(previousVote: 1 | -1 | null, newVote: 1 | -1) {
-    let nextUpvotes = upvotes;
-    let nextDownvotes = downvotes;
-
-    if (previousVote === 1) nextUpvotes = Math.max(0, nextUpvotes - 1);
-    if (previousVote === -1) nextDownvotes = Math.max(0, nextDownvotes - 1);
-
-    if (newVote === 1) nextUpvotes += 1;
-    if (newVote === -1) nextDownvotes += 1;
-
-    setUpvotes(nextUpvotes);
-    setDownvotes(nextDownvotes);
-    setUserVote(newVote);
+        .from("estate_kid_friendly_votes").select("vote").eq("estate_id", estateId);
+      const rows = (data ?? []) as VoteRow[];
+      setUpvotes(rows.filter(r => r.vote === 1).length);
+      setDownvotes(rows.filter(r => r.vote === -1).length);
+    } catch { /* keep current */ }
   }
 
   async function handleVote(vote: 1 | -1) {
+    // Block if visit required but not visited
+    if (requireVisited && !visited) {
+      setTooltip("Mark this estate as visited before voting.");
+      setTimeout(() => setTooltip(""), 2500);
+      return;
+    }
+
     startTransition(async () => {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
+        const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user ?? null;
-
         if (!user) {
-          alert("Please log in using the wine app login page before voting.");
+          setTooltip("Please sign in before voting.");
+          setTimeout(() => setTooltip(""), 2500);
           return;
         }
 
         const previousVote = userVote;
 
-        applyOptimisticChange(previousVote, vote);
+        // ── TOGGLE: clicking the same button removes the vote ──
+        if (previousVote === vote) {
+          // Optimistic removal
+          setUserVote(null);
+          if (vote === 1)  setUpvotes(v => Math.max(0, v - 1));
+          if (vote === -1) setDownvotes(v => Math.max(0, v - 1));
+
+          const { error } = await supabase
+            .from("estate_kid_friendly_votes")
+            .delete()
+            .eq("estate_id", estateId)
+            .eq("user_id", user.id);
+
+          if (error) {
+            setUserVote(previousVote);
+            await refreshCounts();
+          } else {
+            await refreshCounts();
+          }
+          return;
+        }
+
+        // ── SWITCH or NEW vote ──
+        // Optimistic
+        if (previousVote === 1)  setUpvotes(v => Math.max(0, v - 1));
+        if (previousVote === -1) setDownvotes(v => Math.max(0, v - 1));
+        if (vote === 1)  setUpvotes(v => v + 1);
+        if (vote === -1) setDownvotes(v => v + 1);
+        setUserVote(vote);
 
         const { error } = await supabase
           .from("estate_kid_friendly_votes")
-          .upsert(
-            {
-              estate_id: estateId,
-              user_id: user.id,
-              vote,
-            },
-            {
-              onConflict: "estate_id,user_id",
-            }
-          );
+          .upsert({ estate_id: estateId, user_id: user.id, vote }, { onConflict: "estate_id,user_id" });
 
         if (error) {
           setUserVote(previousVote);
           await refreshCounts();
-          alert(`Could not save your vote: ${error.message}`);
-          return;
+        } else {
+          await refreshCounts();
         }
-
-        await refreshCounts();
       } catch {
         await refreshCounts();
-        alert("Something went wrong while saving your vote.");
       }
     });
   }
 
+  const blocked  = requireVisited && !visited;
   const disabled = !authChecked || isPending;
 
+  const btnBase: React.CSSProperties = {
+    display: "inline-flex", alignItems: "center", gap: "0.3rem",
+    fontSize: "0.68rem", padding: "0.25rem 0.7rem",
+    fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.05em",
+    cursor: blocked || disabled ? "not-allowed" : "pointer",
+    border: "1px solid rgba(184,150,90,0.2)",
+    background: "transparent", color: "#8C8070",
+    transition: "all 0.2s",
+    opacity: disabled ? 0.5 : 1,
+  };
+
+  const upActive:   React.CSSProperties = { ...btnBase, background: "rgba(140,184,122,0.15)", border: "1px solid rgba(140,184,122,0.4)", color: "#8CB87A" };
+  const downActive: React.CSSProperties = { ...btnBase, background: "rgba(192,57,43,0.12)",   border: "1px solid rgba(192,57,43,0.3)",   color: "#E07070" };
+
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <span className="font-medium">Kid friendly?</span>
+    <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", flexWrap: "wrap" }}>
+      <span style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#8C8070" }}>
+        Kid friendly?
+      </span>
 
       <button
         type="button"
         onClick={() => handleVote(1)}
         disabled={disabled}
-        className={`rounded-full border px-3 py-1 transition ${
-          userVote === 1
-            ? "border-green-600 bg-green-100 font-semibold"
-            : "border-gray-300 bg-white hover:bg-gray-50"
-        } ${disabled ? "opacity-60" : ""}`}
+        style={userVote === 1 ? upActive : btnBase}
+        title={blocked ? "Visit this estate first" : userVote === 1 ? "Click to remove your vote" : "Vote kid-friendly"}
       >
         👍 {upvotes}
       </button>
@@ -195,14 +184,17 @@ export default function KidFriendlyVote({
         type="button"
         onClick={() => handleVote(-1)}
         disabled={disabled}
-        className={`rounded-full border px-3 py-1 transition ${
-          userVote === -1
-            ? "border-red-600 bg-red-100 font-semibold"
-            : "border-gray-300 bg-white hover:bg-gray-50"
-        } ${disabled ? "opacity-60" : ""}`}
+        style={userVote === -1 ? downActive : btnBase}
+        title={blocked ? "Visit this estate first" : userVote === -1 ? "Click to remove your vote" : "Vote not kid-friendly"}
       >
         👎 {downvotes}
       </button>
+
+      {tooltip && (
+        <span style={{ fontSize: "0.62rem", color: "#B8965A", letterSpacing: "0.08em", fontStyle: "italic" }}>
+          {tooltip}
+        </span>
+      )}
     </div>
   );
 }

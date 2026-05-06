@@ -301,6 +301,8 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
                 initialUpvotes={summary.up}
                 initialDownvotes={summary.down}
                 initialUserVote={summary.myVote}
+                requireVisited={true}
+                visited={visited}
               />
             </div>
           );
