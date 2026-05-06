@@ -131,13 +131,13 @@ export default function BadgesClient() {
           position: "absolute", top: 0, left: 0, right: 0, height: "2px",
           background: `linear-gradient(to right, #6B1A2A, ${rankStyle.color})`,
         }} />
-        {/* Large background rank numeral */}
+        {/* Large background rank numeral — sits behind the rank text */}
         <div style={{
-          position: "absolute", right: "2rem", top: "50%", transform: "translateY(-50%)",
+          position: "absolute", left: "1.5rem", top: "50%", transform: "translateY(-50%)",
           fontFamily: "'Cormorant Garamond', serif",
-          fontSize: "8rem", fontWeight: 300, lineHeight: 1,
-          color: "rgba(184,150,90,0.06)", pointerEvents: "none",
-          userSelect: "none",
+          fontSize: "9rem", fontWeight: 300, lineHeight: 1,
+          color: "rgba(184,150,90,0.05)", pointerEvents: "none",
+          userSelect: "none", zIndex: 0,
         }}>
           {rankStyle.roman}
         </div>
