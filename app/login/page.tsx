@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { supabase } from "../lib/supabaseClient";
 
 type Mode = "signin" | "signup";
@@ -9,175 +10,272 @@ export default function LoginPage() {
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const [status, setStatus] = useState<
-    "idle" | "working" | "error" | "success"
-  >("idle");
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState<"idle" | "working" | "error" | "success">("idle");
   const [message, setMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password;
 
-    const cleanedEmail = email.trim().toLowerCase();
-    const cleanedPassword = password;
-
-    if (!cleanedEmail) {
-      setStatus("error");
-      setMessage("Please enter your email address.");
-      return;
-    }
-
-    if (!cleanedPassword) {
-      setStatus("error");
-      setMessage("Please enter your password.");
-      return;
-    }
-
-    if (cleanedPassword.length < 6) {
-      setStatus("error");
-      setMessage("Password must be at least 6 characters.");
-      return;
-    }
+    if (!cleanEmail) { setStatus("error"); setMessage("Please enter your email address."); return; }
+    if (!cleanPassword) { setStatus("error"); setMessage("Please enter your password."); return; }
+    if (cleanPassword.length < 6) { setStatus("error"); setMessage("Password must be at least 6 characters."); return; }
 
     setStatus("working");
     setMessage("");
 
     if (mode === "signin") {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: cleanedEmail,
-        password: cleanedPassword,
-      });
-
-      if (error) {
-        setStatus("error");
-        setMessage(error.message);
-        return;
-      }
-
+      const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password: cleanPassword });
+      if (error) { setStatus("error"); setMessage(error.message); return; }
       window.location.replace("/regions");
       return;
     }
 
     const { error } = await supabase.auth.signUp({
-      email: cleanedEmail,
-      password: cleanedPassword,
+      email: cleanEmail,
+      password: cleanPassword,
+      options: { data: { full_name: name.trim() || undefined } }
     });
-
-    if (error) {
-      setStatus("error");
-      setMessage(error.message);
-      return;
-    }
-
+    if (error) { setStatus("error"); setMessage(error.message); return; }
     setStatus("success");
-    setMessage(
-      "Account created. If email confirmation is enabled, please check your inbox before signing in."
-    );
+    setMessage("Account created! Check your inbox to confirm your email, then sign in.");
   }
 
+  const regions = ["Stellenbosch", "Franschhoek", "Constantia", "Hemel-en-Aarde", "Paarl", "Robertson", "Swartland", "Elgin"];
+
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="max-w-md w-full rounded-2xl border bg-white p-6 shadow-sm">
-        <h1 className="text-3xl font-semibold">
-          {mode === "signin" ? "Sign in" : "Sign up"}
-        </h1>
+    <main style={{
+      minHeight: "100vh",
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+    }}>
 
-        <p className="mt-2 text-gray-600">
-          {mode === "signin"
-            ? "Use your email and password to sign in."
-            : "Create an account with your email and password."}
-        </p>
+      {/* ── LEFT PANEL ── */}
+      <div style={{
+        background: "#2C2420",
+        borderRight: "1px solid rgba(184,150,90,0.15)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "3rem",
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        {/* Top accent line */}
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: "3px",
+          background: "linear-gradient(to right, #6B1A2A, #B8965A)",
+        }} />
+        {/* Glow */}
+        <div style={{
+          position: "absolute", bottom: "-100px", right: "-100px",
+          width: "500px", height: "500px",
+          background: "radial-gradient(ellipse, rgba(107,26,42,0.35) 0%, transparent 65%)",
+          pointerEvents: "none",
+        }} />
 
-        <div className="mt-5 flex gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setMode("signin");
-              setStatus("idle");
-              setMessage("");
-            }}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              mode === "signin"
-                ? "bg-black text-white"
-                : "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
-            }`}
-          >
-            Sign in
-          </button>
+        {/* Logo */}
+        <Link href="/" style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: "1.3rem", fontWeight: 400,
+          letterSpacing: "0.12em", color: "#D4AE7A",
+          textDecoration: "none", position: "relative", zIndex: 1,
+        }}>
+          Cape Wine Pass
+        </Link>
 
-          <button
-            type="button"
-            onClick={() => {
-              setMode("signup");
-              setStatus("idle");
-              setMessage("");
-            }}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              mode === "signup"
-                ? "bg-black text-white"
-                : "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
-            }`}
-          >
-            Sign up
-          </button>
+        {/* Quote */}
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "4.5rem", lineHeight: 0.6,
+            color: "rgba(184,150,90,0.25)", marginBottom: "1.5rem",
+          }}>"</div>
+          <h2 style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "1.9rem", fontWeight: 300,
+            color: "#F5F0E8", lineHeight: 1.2, marginBottom: "1rem",
+          }}>
+            Your <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>wine journey</em> across the Western Cape, beautifully remembered.
+          </h2>
+          <p style={{ fontSize: "0.75rem", color: "#8C8070", lineHeight: 1.85, maxWidth: "340px" }}>
+            Track estates, save tasting notes, earn milestones — and never forget a great bottle again.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@email.com"
-            className="w-full rounded-lg border px-3 py-2"
-            autoComplete="email"
-          />
-
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={
-              mode === "signin" ? "Your password" : "Create a password"
-            }
-            className="w-full rounded-lg border px-3 py-2"
-            autoComplete={
-              mode === "signin" ? "current-password" : "new-password"
-            }
-          />
-
-          <button
-            type="submit"
-            disabled={status === "working"}
-            className="w-full rounded-lg bg-black px-4 py-2 text-white disabled:opacity-60"
-          >
-            {status === "working"
-              ? mode === "signin"
-                ? "Signing in..."
-                : "Creating account..."
-              : mode === "signin"
-              ? "Sign in"
-              : "Create account"}
-          </button>
-        </form>
-
-        {status === "error" && (
-          <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-            {message}
-          </div>
-        )}
-
-        {status === "success" && (
-          <div className="mt-4 rounded-lg border border-green-300 bg-green-50 p-3 text-sm text-green-700">
-            {message}
-          </div>
-        )}
-
-        <a className="mt-6 inline-block underline" href="/">
-          ← Back
-        </a>
+        {/* Region tags */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", position: "relative", zIndex: 1 }}>
+          {regions.map(r => (
+            <span key={r} style={{
+              fontSize: "0.58rem", letterSpacing: "0.16em",
+              textTransform: "uppercase", color: "#8C8070",
+              border: "1px solid rgba(184,150,90,0.18)",
+              padding: "0.3rem 0.8rem",
+            }}>{r}</span>
+          ))}
+        </div>
       </div>
+
+      {/* ── RIGHT PANEL ── */}
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "4rem 3rem",
+        overflowY: "auto",
+      }}>
+        <div style={{ width: "100%", maxWidth: "380px" }}>
+
+          {/* Mode label */}
+          <div style={{
+            fontSize: "0.6rem", letterSpacing: "0.25em",
+            textTransform: "uppercase", color: "#B8965A",
+            marginBottom: "1rem",
+          }}>
+            {mode === "signin" ? "Welcome back" : "Get started free"}
+          </div>
+
+          <h1 style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "2.4rem", fontWeight: 300,
+            color: "#F5F0E8", marginBottom: "0.5rem", lineHeight: 1.1,
+          }}>
+            {mode === "signin" ? "Sign in" : "Create your pass"}
+          </h1>
+
+          <p style={{ fontSize: "0.75rem", color: "#8C8070", marginBottom: "2rem", lineHeight: 1.7 }}>
+            {mode === "signin" ? "No account yet? " : "Already have an account? "}
+            <button
+              type="button"
+              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setStatus("idle"); setMessage(""); }}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                color: "#D4AE7A", fontSize: "0.75rem", padding: 0,
+                borderBottom: "1px solid rgba(184,150,90,0.4)",
+                fontFamily: "'Montserrat', sans-serif",
+              }}
+            >
+              {mode === "signin" ? "Create one free" : "Sign in"}
+            </button>
+          </p>
+
+          {/* Alert */}
+          {status === "error" && (
+            <div style={{
+              background: "rgba(192,57,43,0.15)", border: "1px solid rgba(192,57,43,0.3)",
+              color: "#E07070", padding: "0.85rem 1rem",
+              fontSize: "0.72rem", lineHeight: 1.6, marginBottom: "1.2rem",
+            }}>
+              {message}
+            </div>
+          )}
+          {status === "success" && (
+            <div style={{
+              background: "rgba(46,125,50,0.15)", border: "1px solid rgba(46,125,50,0.3)",
+              color: "#81C784", padding: "0.85rem 1rem",
+              fontSize: "0.72rem", lineHeight: 1.6, marginBottom: "1.2rem",
+            }}>
+              {message}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+
+            {mode === "signup" && (
+              <div>
+                <label style={{ display: "block", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#B8AFA0", marginBottom: "0.45rem" }}>
+                  Your name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="First name"
+                  autoComplete="given-name"
+                  style={{ width: "100%", padding: "0.85rem 1rem" }}
+                />
+              </div>
+            )}
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#B8AFA0", marginBottom: "0.45rem" }}>
+                Email address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+                style={{ width: "100%", padding: "0.85rem 1rem" }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#B8AFA0", marginBottom: "0.45rem" }}>
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={mode === "signin" ? "••••••••" : "Min. 6 characters"}
+                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                style={{ width: "100%", padding: "0.85rem 1rem" }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={status === "working"}
+              style={{
+                width: "100%",
+                background: status === "working" ? "#4A0F1C" : "#6B1A2A",
+                color: "#F5F0E8",
+                border: "1px solid #8C3042",
+                padding: "1rem",
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: "0.7rem",
+                fontWeight: 500,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                cursor: status === "working" ? "not-allowed" : "pointer",
+                opacity: status === "working" ? 0.7 : 1,
+                transition: "background 0.2s",
+                marginTop: "0.3rem",
+              }}
+            >
+              {status === "working"
+                ? mode === "signin" ? "Signing in…" : "Creating your pass…"
+                : mode === "signin" ? "Sign in to your pass" : "Create my wine pass"}
+            </button>
+          </form>
+
+          <div style={{ marginTop: "2rem", borderTop: "1px solid rgba(184,150,90,0.1)", paddingTop: "1.5rem" }}>
+            <Link href="/" style={{
+              fontSize: "0.65rem", letterSpacing: "0.15em",
+              color: "#8C8070", textDecoration: "none",
+              textTransform: "uppercase", transition: "color 0.2s",
+            }}>
+              ← Back to home
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Responsive: stack on mobile */}
+      <style>{`
+        @media (max-width: 720px) {
+          main { grid-template-columns: 1fr !important; }
+          main > div:first-child { display: none !important; }
+          main > div:last-child { padding: 3rem 1.5rem !important; }
+        }
+      `}</style>
     </main>
   );
 }
