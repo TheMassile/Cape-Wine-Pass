@@ -56,7 +56,7 @@ export default async function RegionsPage() {
             ← Home
           </a>
           <div style={{ display: "flex", gap: "1.5rem" }}>
-            {[{ href: "/visits", label: "My Visits" }, { href: "/badges", label: "Badges" }].map(l => (
+            {[{ href: "/visits", label: "My Visits" }, { href: "/badges", label: "Badges" }, { href: "/discovery", label: "Discoveries" }].map(l => (
               <a key={l.href} href={l.href} className="back-link" style={{ fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8C8070", textDecoration: "none" }}>{l.label}</a>
             ))}
           </div>

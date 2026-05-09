@@ -11,7 +11,7 @@ export default function BadgesPage() {
             ← Home
           </a>
           <div style={{ display: "flex", gap: "1.5rem" }}>
-            {[{ href: "/regions", label: "Regions" }, { href: "/visits", label: "My Visits" }].map(l => (
+            {[{ href: "/regions", label: "Regions" }, { href: "/visits", label: "My Visits" }, { href: "/discovery", label: "Discoveries" }].map(l => (
               <a key={l.href} href={l.href} className="back-link" style={{ fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8C8070", textDecoration: "none" }}>
                 {l.label}
               </a>

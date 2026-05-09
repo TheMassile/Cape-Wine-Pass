@@ -14,7 +14,7 @@ export default function VisitsPage() {
             ← Regions
           </a>
           <div style={{ display: "flex", gap: "1.5rem" }}>
-            {[{ href: "/regions", label: "Regions" }, { href: "/badges", label: "Badges" }].map(l => (
+            {[{ href: "/regions", label: "Regions" }, { href: "/badges", label: "Badges" }, { href: "/discovery", label: "Discoveries" }].map(l => (
               <a key={l.href} href={l.href} style={{
                 fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase",
                 color: "#8C8070", textDecoration: "none", transition: "color 0.2s",
