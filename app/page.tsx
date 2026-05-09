@@ -110,7 +110,7 @@ export default function HomePage() {
               {/* Mini stat row */}
               <div style={{ display: "flex", gap: "3rem", marginTop: "3rem", flexWrap: "wrap" }}>
                 {[
-                  { num: "418+", label: "Wine estates" },
+                  { num: "425+", label: "Wine estates" },
                   { num: "6+", label: "Regions" },
                   { num: "∞", label: "Memories" },
                 ].map((s) => (
