@@ -7,9 +7,10 @@ export default function AppHeader() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/regions", label: "Regions" },
-    { href: "/visits", label: "My Visits" },
-    { href: "/badges", label: "Badges" },
+    { href: "/regions",   label: "Regions"     },
+    { href: "/visits",    label: "My Visits"   },
+    { href: "/badges",    label: "Badges"      },
+    { href: "/discovery", label: "Discoveries" },
   ];
 
   return (
@@ -77,6 +78,7 @@ export default function AppHeader() {
               );
             })}
 
+            {/* Sign in button */}
             <Link
               href="/login"
               style={{
