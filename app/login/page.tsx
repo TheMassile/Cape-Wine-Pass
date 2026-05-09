@@ -256,14 +256,25 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div style={{ marginTop: "2rem", borderTop: "1px solid rgba(184,150,90,0.1)", paddingTop: "1.5rem" }}>
+          <div style={{ marginTop: "2rem", borderTop: "1px solid rgba(184,150,90,0.1)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
             <Link href="/" style={{
               fontSize: "0.65rem", letterSpacing: "0.15em",
               color: "#8C8070", textDecoration: "none",
-              textTransform: "uppercase", transition: "color 0.2s",
+              textTransform: "uppercase",
             }}>
               ← Back to home
             </Link>
+            {mode === "signin" && (
+              <Link href="/reset-password" style={{
+                fontSize: "0.65rem", letterSpacing: "0.15em",
+                color: "#8C8070", textDecoration: "none",
+                textTransform: "uppercase",
+                borderBottom: "1px solid rgba(184,150,90,0.25)",
+                paddingBottom: "1px",
+              }}>
+                Forgot password?
+              </Link>
+            )}
           </div>
         </div>
       </div>
