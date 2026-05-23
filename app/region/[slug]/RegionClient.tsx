@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import VisitedToggle from "@/app/region/VisitedToggle";
 import KidFriendlyVote from "@/app/components/KidFriendlyVote";
@@ -14,6 +15,8 @@ type EstateRow = {
   "Appointment Only (Y/N)"?: string | null;
   "Restaurant (Y/N)"?: string | null;
   "Kid Friendly (Yes/No/Unknown)"?: string | null;
+  platter_available?: string | null;
+  group_friendly?: string | null;
 };
 
 type VisitRow = Record<string, unknown>;
@@ -22,15 +25,18 @@ type VoteSummary = { up: number; down: number; myVote: 1 | -1 | null };
 type ToastState  = { show: boolean; message: string; tone: "success" | "error" | "info" };
 
 export default function RegionClient({ regionName, estates }: { regionName: string; estates: EstateRow[] }) {
-  const [q, setQ]                           = useState("");
+  const router = useRouter();
+  const [q, setQ]                               = useState("");
   const [filterRestaurant, setFilterRestaurant] = useState(false);
   const [filterAppointment, setFilterAppointment] = useState(false);
-  const [visitedIds, setVisitedIds]         = useState<Set<string>>(new Set());
-  const [favoriteIds, setFavoriteIds]       = useState<Set<string>>(new Set());
-  const [loadingVisited, setLoadingVisited] = useState(true);
-  const [votes, setVotes]                   = useState<Record<string, VoteSummary>>({});
-  const [loadingVotes, setLoadingVotes]     = useState(true);
-  const [toast, setToast]                   = useState<ToastState>({ show: false, message: "", tone: "info" });
+  const [filterPlatter, setFilterPlatter]       = useState(false);
+  const [filterGroup, setFilterGroup]           = useState(false);
+  const [visitedIds, setVisitedIds]             = useState<Set<string>>(new Set());
+  const [favoriteIds, setFavoriteIds]           = useState<Set<string>>(new Set());
+  const [loadingVisited, setLoadingVisited]     = useState(true);
+  const [votes, setVotes]                       = useState<Record<string, VoteSummary>>({});
+  const [loadingVotes, setLoadingVotes]         = useState(true);
+  const [toast, setToast]                       = useState<ToastState>({ show: false, message: "", tone: "info" });
 
   function showToast(message: string, tone: "success" | "error" | "info" = "info") {
     setToast({ show: true, message, tone });
@@ -89,9 +95,11 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
       if (qq && !name.includes(qq) && !id.includes(qq)) return false;
       if (filterRestaurant  && e["Restaurant (Y/N)"] !== "Y") return false;
       if (filterAppointment && e["Appointment Only (Y/N)"] !== "Y") return false;
+      if (filterPlatter     && e.platter_available !== "Y") return false;
+      if (filterGroup       && e.group_friendly !== "Y") return false;
       return true;
     });
-  }, [estates, q, filterRestaurant, filterAppointment]);
+  }, [estates, q, filterRestaurant, filterAppointment, filterPlatter, filterGroup]);
 
   const visitedCount = useMemo(() => estates.filter(e => visitedIds.has(e["Estate ID"])).length, [estates, visitedIds]);
 
@@ -115,7 +123,6 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
     showToast(nextFav ? "Added to favourites" : "Removed from favourites", nextFav ? "success" : "info");
   }
 
-  /* ── FILTER CHIP ── */
   const chip = (active: boolean, label: string, onClick: () => void) => (
     <button
       onClick={onClick}
@@ -135,16 +142,9 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
   return (
     <>
       {/* Controls bar */}
-      <div style={{
-        background: "#2C2420",
-        border: "1px solid rgba(184,150,90,0.18)",
-        padding: "1.5rem 2rem",
-        marginBottom: "1px",
-        position: "relative",
-      }}>
+      <div style={{ background: "#2C2420", border: "1px solid rgba(184,150,90,0.18)", padding: "1.5rem 2rem", marginBottom: "1px", position: "relative" }}>
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(to right, #6B1A2A, #B8965A)" }} />
 
-        {/* Progress */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.2rem", flexWrap: "wrap", gap: "0.5rem" }}>
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "#F5F0E8" }}>
             <span style={{ color: "#D4AE7A" }}>{loadingVisited ? "…" : visitedCount}</span>
@@ -155,47 +155,29 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
           </div>
         </div>
 
-        {/* Progress bar */}
         <div style={{ height: "1px", background: "rgba(184,150,90,0.12)", marginBottom: "1.2rem" }}>
-          <div style={{
-            height: "100%",
-            width: estates.length > 0 ? `${Math.round(visitedCount / estates.length * 100)}%` : "0%",
-            background: "#B8965A", transition: "width 0.4s ease",
-          }} />
+          <div style={{ height: "100%", width: estates.length > 0 ? `${Math.round(visitedCount / estates.length * 100)}%` : "0%", background: "#B8965A", transition: "width 0.4s ease" }} />
         </div>
 
-        {/* Search */}
         <div style={{ display: "flex", gap: "0.6rem", marginBottom: "1rem" }}>
           <div style={{ position: "relative", flex: 1 }}>
             <svg style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", width: "12px", height: "12px", stroke: "#8C8070", fill: "none", strokeWidth: 2 }} viewBox="0 0 16 16">
               <circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/>
             </svg>
-            <input
-              value={q}
-              onChange={e => setQ(e.target.value)}
-              placeholder={`Search ${regionName} estates…`}
-              style={{ width: "100%", padding: "0.65rem 1rem 0.65rem 2.2rem" }}
-            />
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder={`Search ${regionName} estates…`} style={{ width: "100%", padding: "0.65rem 1rem 0.65rem 2.2rem" }} />
           </div>
           {q && (
-            <button
-              onClick={() => setQ("")}
-              style={{
-                background: "transparent", border: "1px solid rgba(184,150,90,0.2)",
-                color: "#8C8070", padding: "0.65rem 1rem",
-                fontFamily: "'Montserrat', sans-serif", fontSize: "0.6rem",
-                letterSpacing: "0.15em", cursor: "pointer",
-              }}
-            >
+            <button onClick={() => setQ("")} style={{ background: "transparent", border: "1px solid rgba(184,150,90,0.2)", color: "#8C8070", padding: "0.65rem 1rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.6rem", letterSpacing: "0.15em", cursor: "pointer" }}>
               Clear
             </button>
           )}
         </div>
 
-        {/* Filter chips */}
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.8rem" }}>
-          {chip(filterRestaurant,  "Restaurant",   () => setFilterRestaurant(v => !v))}
+          {chip(filterRestaurant,  "Restaurant",     () => setFilterRestaurant(v => !v))}
           {chip(filterAppointment, "By appointment", () => setFilterAppointment(v => !v))}
+          {chip(filterPlatter,     "Platters",       () => setFilterPlatter(v => !v))}
+          {chip(filterGroup,       "Group friendly", () => setFilterGroup(v => !v))}
         </div>
 
         <div style={{ fontSize: "0.58rem", letterSpacing: "0.15em", color: "#8C8070" }}>
@@ -213,59 +195,54 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
           const summary = votes[id] ?? { up: 0, down: 0, myVote: null };
 
           return (
-            <div
-              key={id}
-              style={{
-                background: visited ? "rgba(107,26,42,0.18)" : "#2C2420",
-                padding: "1.4rem 2rem",
-                transition: "background 0.2s",
-                position: "relative",
-              }}
-            >
-              {/* Visited accent */}
+            <div key={id} style={{ background: visited ? "rgba(107,26,42,0.18)" : "#2C2420", padding: "1.4rem 2rem", transition: "background 0.2s", position: "relative" }}>
               {visited && <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "2px", background: "#6B1A2A" }} />}
 
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "0.8rem" }}>
-                {/* Left: name + tags */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap", marginBottom: "0.25rem" }}>
-                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem", fontWeight: 400, color: "#F5F0E8" }}>
+
+                    {/* Clickable estate name */}
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/estate/${encodeURIComponent(id)}`)}
+                      style={{
+                        fontFamily: "'Cormorant Garamond', serif", fontSize: "1.15rem",
+                        fontWeight: 400, color: "#F5F0E8", background: "none",
+                        border: "none", cursor: "pointer", padding: 0,
+                        textAlign: "left", transition: "color 0.2s",
+                        borderBottom: "1px solid rgba(184,150,90,0.2)",
+                      }}
+                    >
                       {name}
-                    </span>
+                    </button>
 
                     {visited && (
-                      <button
-                        type="button"
-                        onClick={() => toggleFavorite(id)}
-                        title={isFav ? "Remove from favourites" : "Add to favourites"}
-                        style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: "0.9rem", color: isFav ? "#D4AE7A" : "#8C8070", transition: "color 0.2s", lineHeight: 1 }}
-                      >
+                      <button type="button" onClick={() => toggleFavorite(id)} title={isFav ? "Remove from favourites" : "Add to favourites"}
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: "0.9rem", color: isFav ? "#D4AE7A" : "#8C8070", transition: "color 0.2s", lineHeight: 1 }}>
                         {isFav ? "♥" : "♡"}
                       </button>
                     )}
 
                     {summary.up >= 3 && (
-                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8CB87A", border: "1px solid rgba(140,184,122,0.3)", padding: "0.15rem 0.5rem" }}>
-                        Kid-friendly
-                      </span>
+                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8CB87A", border: "1px solid rgba(140,184,122,0.3)", padding: "0.15rem 0.5rem" }}>Kid-friendly</span>
                     )}
-
                     {e["Restaurant (Y/N)"] === "Y" && (
-                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#B8AFA0", border: "1px solid rgba(184,175,160,0.2)", padding: "0.15rem 0.5rem" }}>
-                        Restaurant
-                      </span>
+                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#B8AFA0", border: "1px solid rgba(184,175,160,0.2)", padding: "0.15rem 0.5rem" }}>Restaurant</span>
                     )}
-
+                    {e.platter_available === "Y" && (
+                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#B8AFA0", border: "1px solid rgba(184,175,160,0.2)", padding: "0.15rem 0.5rem" }}>Platters</span>
+                    )}
+                    {e.group_friendly === "Y" && (
+                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#B8AFA0", border: "1px solid rgba(184,175,160,0.2)", padding: "0.15rem 0.5rem" }}>Groups</span>
+                    )}
                     {e["Appointment Only (Y/N)"] === "Y" && (
-                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#B8AFA0", border: "1px solid rgba(184,175,160,0.2)", padding: "0.15rem 0.5rem" }}>
-                        By appt
-                      </span>
+                      <span style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#B8AFA0", border: "1px solid rgba(184,175,160,0.2)", padding: "0.15rem 0.5rem" }}>By appt</span>
                     )}
                   </div>
                   <div style={{ fontSize: "0.58rem", color: "#8C8070", letterSpacing: "0.08em" }}>{id}</div>
                 </div>
 
-                {/* Right: actions */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexShrink: 0 }}>
                   <VisitedToggle
                     estateId={id}
@@ -276,26 +253,13 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
                       showToast(nowVisited ? "Estate marked as visited." : "Estate removed from visits.", nowVisited ? "success" : "info");
                     }}
                   />
-                  <button
-                    type="button"
-                    onClick={() => handleEditNotes(id, visited)}
-                    style={{
-                      background: "transparent",
-                      border: "1px solid rgba(184,150,90,0.2)",
-                      color: visited ? "#D4AE7A" : "#8C8070",
-                      padding: "0.4rem 0.9rem",
-                      fontFamily: "'Montserrat', sans-serif",
-                      fontSize: "0.58rem", letterSpacing: "0.15em",
-                      textTransform: "uppercase", cursor: "pointer",
-                      transition: "all 0.2s",
-                    }}
-                  >
+                  <button type="button" onClick={() => handleEditNotes(id, visited)}
+                    style={{ background: "transparent", border: "1px solid rgba(184,150,90,0.2)", color: visited ? "#D4AE7A" : "#8C8070", padding: "0.4rem 0.9rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.58rem", letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
                     Notes
                   </button>
                 </div>
               </div>
 
-              {/* Kid friendly vote */}
               <KidFriendlyVote
                 estateId={id}
                 initialUpvotes={summary.up}
