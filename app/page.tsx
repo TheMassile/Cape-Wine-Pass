@@ -6,49 +6,69 @@ const features = [
     number: "01",
     title: "Track your progress",
     description: "Tick off estates region by region and see how close you are to completing each area of the Cape.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M8 12.5l2.5 2.5L16 9" />
+      </svg>
+    ),
   },
   {
     number: "02",
     title: "Save tasting notes",
     description: "Keep favourite reds, whites, rosés and personal comments for every estate you visit.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 3h10l-1 7a4 4 0 01-8 0L7 3z" />
+        <path d="M12 14v6" />
+        <path d="M9 20h6" />
+      </svg>
+    ),
   },
   {
     number: "03",
     title: "Keep favourites",
     description: "Mark the estates you love most and return to them easily, sorted by your own preferences.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 20s-7-4.35-9.5-8.5C1 8 2.5 4.5 6 4.5c2 0 3.5 1.2 4 2.5.5-1.3 2-2.5 4-2.5 3.5 0 5 3.5 3.5 7C19 15.65 12 20 12 20z" />
+      </svg>
+    ),
   },
   {
     number: "04",
     title: "Unlock milestones",
     description: "Earn milestone badges as you travel and build your own personal Western Cape wine story.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="9" r="5.5" />
+        <path d="M9 13.5L7 21l5-2.5 5 2.5-2-7.5" />
+      </svg>
+    ),
   },
   {
     number: "05",
     title: "Family-friendly finds",
     description: "Vote on kid-friendly estates and discover which cellars welcome the whole family.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="8.5" cy="7" r="2.5" />
+        <circle cx="16" cy="8" r="2" />
+        <path d="M3.5 19c0-3 2.2-5 5-5s5 2 5 5" />
+        <path d="M14 19c0-2 1.6-4 3.5-4.2" />
+      </svg>
+    ),
   },
   {
     number: "06",
     title: "Browse by region",
     description: "Open Stellenbosch, Franschhoek, Constantia and more — all estates in one elegant place.",
-  },
-];
-
-const steps = [
-  {
-    number: "01",
-    title: "Explore",
-    description: "Browse wine farms by region and discover estates you want to visit across the Western Cape.",
-  },
-  {
-    number: "02",
-    title: "Record",
-    description: "Mark estates as visited, save tasting notes, and capture what stood out from every visit.",
-  },
-  {
-    number: "03",
-    title: "Build your pass",
-    description: "Track progress, earn badges, and create your own lasting Western Cape wine journey.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M14.5 9.5L13 13l-3.5 1.5L11 11l3.5-1.5z" />
+      </svg>
+    ),
   },
 ];
 
@@ -109,16 +129,7 @@ export default function HomePage() {
                 the Cape.
               </h1>
 
-              <p style={{
-                fontSize: "0.82rem", color: "#B8AFA0", lineHeight: 1.9,
-                maxWidth: "520px", margin: "1.8rem 0 2.5rem",
-                letterSpacing: "0.02em",
-              }}>
-                Cape Wine Pass keeps your wine journey beautifully organised — estates visited,
-                tasting notes saved, favourites remembered, milestones earned.
-              </p>
-
-              <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", alignItems: "center" }}>
+              <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", alignItems: "center", marginTop: "2.5rem" }}>
                 <Link href="/regions" className="btn-primary">
                   Explore the pass
                 </Link>
@@ -134,7 +145,7 @@ export default function HomePage() {
                   { num: "6+", label: "Regions" },
                   { num: "∞", label: "Memories" },
                 ].map((s) => (
-                  <div key={s.label}>
+                  <div key={s.label} style={{ textAlign: "center" }}>
                     <div style={{
                       fontFamily: "'Cormorant Garamond', serif",
                       fontSize: "2rem", fontWeight: 300,
@@ -174,8 +185,8 @@ export default function HomePage() {
                   One place to collect your Cape wine memories.
                 </h2>
                 <p style={{ fontSize: "0.75rem", color: "rgba(245,240,232,0.65)", lineHeight: 1.85 }}>
-                  Keep everything together — estates visited, tasting notes, favourites,
-                  progress, and family-friendly discoveries.
+                  Cape Wine Pass keeps your wine journey beautifully organised — estates visited,
+                  tasting notes saved, favourites remembered, milestones earned.
                 </p>
               </div>
 
@@ -205,7 +216,7 @@ export default function HomePage() {
       {/* Divider */}
       <div style={{ width: "100%", height: "1px", background: "linear-gradient(to right, transparent, rgba(184,150,90,0.3), transparent)" }} />
 
-      {/* ── FEATURES ── */}
+      {/* ── WHY USE IT + FEATURES + CTA (merged) ── */}
       <section style={{ padding: "5rem 0" }}>
         <div className="page-shell">
           <div style={{ marginBottom: "3rem" }}>
@@ -217,6 +228,20 @@ export default function HomePage() {
               Instead of forgetting where you have been, what you loved, or which estates suit a
               family day out — Cape Wine Pass keeps your wine life beautifully in order.
             </p>
+          </div>
+
+          {/* Supporting image */}
+          <div style={{
+            position: "relative", width: "100%", height: "320px",
+            marginBottom: "3.5rem", border: "1px solid rgba(184,150,90,0.2)", overflow: "hidden",
+          }}>
+            <Image
+              src="/images/features-vineyard.jpg"
+              alt="Vineyard rows with mountain backdrop in Franschhoek"
+              fill
+              sizes="100vw"
+              style={{ objectFit: "cover" }}
+            />
           </div>
 
           <div style={{
@@ -237,6 +262,9 @@ export default function HomePage() {
                 }}>
                   {f.number}
                 </div>
+                <div style={{ marginBottom: "0.9rem" }}>
+                  {f.icon}
+                </div>
                 <h3 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   fontSize: "1.3rem", fontWeight: 400,
@@ -250,99 +278,46 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Divider */}
-      <div style={{ width: "100%", height: "1px", background: "linear-gradient(to right, transparent, rgba(184,150,90,0.3), transparent)" }} />
-
-      {/* ── HOW IT WORKS ── */}
-      <section style={{ padding: "5rem 0", background: "rgba(184,150,90,0.03)" }}>
-        <div className="page-shell">
-          <div style={{ display: "grid", gap: "4rem", gridTemplateColumns: "1fr" }} className="journey-grid">
-
-            {/* Steps */}
-            <div>
-              <div className="muted-label">How it works</div>
-              <h2 className="section-title" style={{ marginTop: "0.75rem", marginBottom: "2.5rem" }}>
-                Build your <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>wine pass</em> in three steps
-              </h2>
-
-              <div>
-                {steps.map((step, i) => (
-                  <div
-                    key={step.number}
-                    style={{
-                      display: "flex", gap: "2rem",
-                      padding: "2rem 0",
-                      borderBottom: i < steps.length - 1 ? "1px solid rgba(184,150,90,0.12)" : "none",
-                    }}
-                  >
-                    <span style={{
-                      fontFamily: "'Cormorant Garamond', serif",
-                      fontSize: "0.9rem", color: "#8C3042",
-                      letterSpacing: "0.1em", paddingTop: "0.2rem",
-                      flexShrink: 0, width: "2rem", textAlign: "right",
-                    }}>
-                      {step.number}
-                    </span>
-                    <div>
-                      <h3 style={{
-                        fontFamily: "'Cormorant Garamond', serif",
-                        fontSize: "1.5rem", fontWeight: 400,
-                        color: "#F5F0E8", marginBottom: "0.5rem",
-                      }}>
-                        {step.title}
-                      </h3>
-                      <p style={{ fontSize: "0.76rem", color: "#B8AFA0", lineHeight: 1.85 }}>
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA card */}
+          {/* Closing CTA card */}
+          <div style={{
+            background: "#2C2420",
+            border: "1px solid rgba(184,150,90,0.2)",
+            padding: "3rem", position: "relative",
+            marginTop: "4rem",
+          }}>
             <div style={{
-              background: "#2C2420",
-              border: "1px solid rgba(184,150,90,0.2)",
-              padding: "3rem", position: "relative",
+              position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+              background: "linear-gradient(to right, #6B1A2A, #B8965A)",
+            }} />
+            <div className="muted-label" style={{ marginBottom: "1rem" }}>Begin your journey</div>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: "2rem", fontWeight: 300,
+              color: "#F5F0E8", lineHeight: 1.15, marginBottom: "1rem",
             }}>
-              <div style={{
-                position: "absolute", top: 0, left: 0, right: 0, height: "2px",
-                background: "linear-gradient(to right, #6B1A2A, #B8965A)",
-              }} />
-              <div className="muted-label" style={{ marginBottom: "1rem" }}>Begin your journey</div>
-              <h2 style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "2rem", fontWeight: 300,
-                color: "#F5F0E8", lineHeight: 1.15, marginBottom: "1rem",
-              }}>
-                Your Cape wine story starts <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>here</em>.
-              </h2>
-              <p style={{ fontSize: "0.76rem", color: "#B8AFA0", lineHeight: 1.85, marginBottom: "2rem" }}>
-                Join wine lovers across the Western Cape who are discovering, tracking and
-                remembering the best estates the region has to offer.
-              </p>
-              <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
-                <Link href="/regions" className="btn-primary">
-                  Start exploring
-                </Link>
-                <Link href="/login" className="btn-secondary">
-                  Create a free account →
-                </Link>
-              </div>
+              Your Cape wine story starts <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>here</em>.
+            </h2>
+            <p style={{ fontSize: "0.76rem", color: "#B8AFA0", lineHeight: 1.85, marginBottom: "2rem", maxWidth: "560px" }}>
+              Join wine lovers across the Western Cape who are discovering, tracking and
+              remembering the best estates the region has to offer.
+            </p>
+            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+              <Link href="/regions" className="btn-primary">
+                Start exploring
+              </Link>
+              <Link href="/login" className="btn-secondary">
+                Create a free account →
+              </Link>
             </div>
-
           </div>
+
         </div>
       </section>
 
       <style>{`
         @media (min-width: 1024px) {
           .hero-grid { grid-template-columns: 1.2fr 0.8fr !important; }
-          .journey-grid { grid-template-columns: 1fr 1fr !important; }
         }
         .feature-cell {
           background: #2C2420;
