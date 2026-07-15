@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const features = [
@@ -57,13 +58,32 @@ export default function HomePage() {
 
       {/* ── HERO ── */}
       <section style={{ padding: "5rem 0 4rem", position: "relative", overflow: "hidden" }}>
+
+        {/* Background photo */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+          <Image
+            src="/images/hero-winelands.jpg"
+            alt="Stellenbosch mountains and vineyards at sunrise"
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: "cover", objectPosition: "center 30%" }}
+          />
+        </div>
+
+        {/* Dark overlay for text legibility */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(180deg, rgba(26,20,16,0.45) 0%, rgba(26,20,16,0.78) 55%, rgba(26,20,16,0.96) 100%)",
+        }} />
+
         {/* Background glow */}
         <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
+          position: "absolute", inset: 0, pointerEvents: "none", zIndex: 2,
           background: "radial-gradient(ellipse 55% 50% at 75% 60%, rgba(107,26,42,0.32) 0%, transparent 70%), radial-gradient(ellipse 40% 60% at 20% 80%, rgba(74,15,28,0.28) 0%, transparent 65%)",
         }} />
 
-        <div className="page-shell" style={{ position: "relative" }}>
+        <div className="page-shell" style={{ position: "relative", zIndex: 3 }}>
           <div style={{ display: "grid", gap: "3rem", alignItems: "center", gridTemplateColumns: "1fr" }} className="hero-grid">
 
             {/* Left */}
