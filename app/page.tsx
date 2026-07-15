@@ -237,9 +237,9 @@ export default function HomePage() {
           }}>
             <Image
               src="/images/features-vineyard.jpg"
-              alt="Vineyard rows with mountain backdrop in Franschhoek"
+              alt="Wine glasses and protea flower, Stellenbosch"
               fill
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, 72rem"
               style={{ objectFit: "cover" }}
             />
           </div>
