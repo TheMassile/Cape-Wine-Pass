@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import { supabase } from "@/app/lib/supabaseClient";
 
 export default function SiteHeader() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -30,7 +32,9 @@ export default function SiteHeader() {
   return (
     <header style={{
       position: "sticky", top: 0, zIndex: 100,
-      background: "#1A1410",
+      background: "rgba(26,20,16,0.97)",
+      backdropFilter: "blur(8px)",
+      WebkitBackdropFilter: "blur(8px)",
       borderBottom: "1px solid rgba(184,150,90,0.15)",
     }}>
       <div className="page-shell" style={{
@@ -62,21 +66,26 @@ export default function SiteHeader() {
           background: "#2C2420",
         }}>
           <div className="page-shell" style={{ display: "flex", flexDirection: "column", padding: "1rem 0" }}>
-            {navLinks.map(l => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  padding: "0.9rem 0",
-                  fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase",
-                  color: "#B8AFA0", textDecoration: "none",
-                  borderBottom: "1px solid rgba(184,150,90,0.08)",
-                }}
-              >
-                {l.label}
-              </Link>
-            ))}
+            {navLinks.map(l => {
+              const isActive = pathname?.startsWith(l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    padding: "0.9rem 0",
+                    fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase",
+                    color: isActive ? "#D4AE7A" : "#B8AFA0",
+                    textDecoration: "none",
+                    borderBottom: "1px solid rgba(184,150,90,0.08)",
+                    fontWeight: isActive ? 500 : 400,
+                  }}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
 
             {userId ? (
               <button

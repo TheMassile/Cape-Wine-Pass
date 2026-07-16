@@ -49,19 +49,6 @@ export default async function RegionsPage() {
     <main style={{ minHeight: "100vh", padding: "3rem 1.5rem" }}>
       <div style={{ maxWidth: "860px", margin: "0 auto" }}>
 
-        {/* Page header */}
-        {/* Top nav row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
-          <a href="/" className="back-link" style={{ fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8C8070", textDecoration: "none" }}>
-            ← Home
-          </a>
-          <div style={{ display: "flex", gap: "1.5rem" }}>
-            {[{ href: "/visits", label: "My Visits" }, { href: "/badges", label: "Badges" }, { href: "/discovery", label: "Discoveries" }].map(l => (
-              <a key={l.href} href={l.href} className="back-link" style={{ fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8C8070", textDecoration: "none" }}>{l.label}</a>
-            ))}
-          </div>
-        </div>
-
         <div style={{ marginBottom: "0.5rem" }}>
           <div style={{
             fontSize: "0.6rem", letterSpacing: "0.25em",
@@ -83,10 +70,6 @@ export default async function RegionsPage() {
         </div>
 
         <RegionsProgress regions={regions} />
-
-        <style>{`
-          .back-link:hover { color: #D4AE7A !important; }
-        `}</style>
       </div>
     </main>
   );
