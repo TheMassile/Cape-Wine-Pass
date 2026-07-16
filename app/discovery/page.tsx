@@ -147,9 +147,13 @@ export default function DiscoveryPage() {
       {/* ── HERO HEADER ── */}
       <div style={{
         borderBottom: "1px solid rgba(184,150,90,0.15)",
-        padding: "4rem 1.5rem 3rem",
+        minHeight: "460px",
+        padding: "1.5rem",
         position: "relative", overflow: "hidden",
         textAlign: "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}>
         {/* Background photo */}
         <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
@@ -163,22 +167,22 @@ export default function DiscoveryPage() {
           />
         </div>
 
-        {/* Dark overlay for text legibility */}
+        {/* Dark overlay — much lighter now so the photo itself reads clearly */}
         <div style={{
           position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-          background: "linear-gradient(180deg, rgba(26,20,16,0.82) 0%, rgba(26,20,16,0.9) 60%, rgba(26,20,16,0.97) 100%)",
+          background: "linear-gradient(180deg, rgba(26,20,16,0.45) 0%, rgba(26,20,16,0.35) 45%, rgba(26,20,16,0.85) 100%)",
         }} />
 
         {/* Background glow */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none", zIndex: 2,
-          background: "radial-gradient(ellipse 60% 80% at 50% 100%, rgba(107,26,42,0.25) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse 60% 80% at 50% 100%, rgba(107,26,42,0.2) 0%, transparent 70%)",
         }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", zIndex: 3, background: "linear-gradient(to right, transparent, #B8965A, transparent)" }} />
 
         {/* Nav */}
         <div style={{ position: "absolute", top: "1.5rem", left: "1.5rem", zIndex: 3 }}>
-          <Link href="/regions" style={{ fontSize: "0.58rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8C8070", textDecoration: "none" }}>
+          <Link href="/regions" style={{ fontSize: "0.58rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#F5F0E8", textDecoration: "none" }}>
             ← Regions
           </Link>
         </div>
@@ -187,13 +191,14 @@ export default function DiscoveryPage() {
         <div style={{ position: "relative", zIndex: 3 }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: "0.5rem",
-            border: "1px solid rgba(184,150,90,0.3)",
+            border: "1px solid rgba(184,150,90,0.45)",
+            background: "rgba(26,20,16,0.55)",
             padding: "0.35rem 1rem", marginBottom: "1.5rem",
           }}>
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
               <polygon points="5,1 6.2,3.8 9.5,4 7,6.3 7.6,9.5 5,8 2.4,9.5 3,6.3 0.5,4 3.8,3.8" fill="#B8965A"/>
             </svg>
-            <span style={{ fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#B8965A" }}>
+            <span style={{ fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#D4AE7A" }}>
               Explorer's Discovery
             </span>
           </div>
@@ -203,6 +208,7 @@ export default function DiscoveryPage() {
             fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
             fontWeight: 300, color: "#F5F0E8",
             lineHeight: 1.05,
+            textShadow: "0 2px 12px rgba(0,0,0,0.5)",
           }}>
             Found something <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>special</em>?
           </h1>

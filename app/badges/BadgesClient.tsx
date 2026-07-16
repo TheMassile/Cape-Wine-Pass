@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { supabase } from "../lib/supabaseClient";
 
 const MILESTONES = [
@@ -105,9 +106,20 @@ export default function BadgesClient() {
       <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "#F5F0E8", marginBottom: "0.5rem" }}>
         Sign in to see your badges
       </div>
-      <p style={{ fontSize: "0.75rem", color: "#8C8070", lineHeight: 1.7 }}>
+      <p style={{ fontSize: "0.75rem", color: "#8C8070", lineHeight: 1.7, marginBottom: "1.5rem" }}>
         Your milestones and rank are saved to your account.
       </p>
+      <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", flexWrap: "wrap" }}>
+        <Link href="/login" style={{ display: "inline-block", background: "#6B1A2A", border: "1px solid #8C3042", color: "#F5F0E8", padding: "0.55rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.62rem", letterSpacing: "0.18em", textTransform: "uppercase", textDecoration: "none" }}>
+          Sign in
+        </Link>
+        <span style={{ fontSize: "0.68rem", color: "#8C8070" }}>
+          No account?{" "}
+          <Link href="/onboarding" style={{ color: "#D4AE7A", textDecoration: "underline" }}>
+            Sign up
+          </Link>
+        </span>
+      </div>
     </div>
   );
 
@@ -124,9 +136,12 @@ export default function BadgesClient() {
       <div style={{
         background: "#2C2420",
         border: `1px solid ${rankStyle.border}`,
-        padding: "2.5rem",
+        padding: "3rem 2.5rem",
+        minHeight: "380px",
         position: "relative",
         overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
       }}>
         {/* Background photo */}
         <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
@@ -139,10 +154,10 @@ export default function BadgesClient() {
           />
         </div>
 
-        {/* Dark overlay for text legibility */}
+        {/* Dark overlay — lighter now, and concentrated toward the text side */}
         <div style={{
           position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-          background: "linear-gradient(115deg, rgba(26,20,16,0.94) 0%, rgba(26,20,16,0.86) 45%, rgba(26,20,16,0.65) 100%)",
+          background: "linear-gradient(100deg, rgba(26,20,16,0.9) 0%, rgba(26,20,16,0.55) 35%, rgba(26,20,16,0.18) 65%, rgba(26,20,16,0.05) 100%)",
         }} />
 
         <div style={{
@@ -160,54 +175,56 @@ export default function BadgesClient() {
           {rankStyle.roman}
         </div>
 
-        <div style={{ position: "relative", zIndex: 3, display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1.5rem" }}>
-          <div>
-            <div style={{ fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#8C8070", marginBottom: "0.8rem" }}>
-              Current rank
+        <div style={{ position: "relative", zIndex: 3, width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1.5rem" }}>
+            <div>
+              <div style={{ fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#8C8070", marginBottom: "0.8rem" }}>
+                Current rank
+              </div>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "3rem", fontWeight: 300,
+                color: rankStyle.color, lineHeight: 1, marginBottom: "0.5rem",
+              }}>
+                {rankStyle.label}
+              </div>
+              <div style={{ fontSize: "0.72rem", color: "#8C8070", marginBottom: "0.3rem" }}>
+                <span style={{ color: "#D4AE7A" }}>{visitedCount}</span> of {totalEstates} estates visited
+              </div>
+              <div style={{ fontSize: "0.7rem", color: "#8C8070" }}>
+                {rank === "Elite"
+                  ? "Elite unlocked — every estate visited."
+                  : `Next: ${nextText} — ${toGo} to go`}
+              </div>
             </div>
+
             <div style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "3rem", fontWeight: 300,
-              color: rankStyle.color, lineHeight: 1, marginBottom: "0.5rem",
+              background: "rgba(26,20,16,0.7)",
+              border: `1px solid ${rankStyle.border}`,
+              padding: "1.2rem 1.8rem",
+              textAlign: "center",
+              flexShrink: 0,
             }}>
-              {rankStyle.label}
-            </div>
-            <div style={{ fontSize: "0.72rem", color: "#8C8070", marginBottom: "0.3rem" }}>
-              <span style={{ color: "#D4AE7A" }}>{visitedCount}</span> of {totalEstates} estates visited
-            </div>
-            <div style={{ fontSize: "0.7rem", color: "#8C8070" }}>
-              {rank === "Elite"
-                ? "Elite unlocked — every estate visited."
-                : `Next: ${nextText} — ${toGo} to go`}
+              <div style={{ fontSize: "0.58rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#8C8070", marginBottom: "0.4rem" }}>
+                Completion
+              </div>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "2.5rem", fontWeight: 300, color: rankStyle.color, lineHeight: 1,
+              }}>
+                {pct}%
+              </div>
             </div>
           </div>
 
-          <div style={{
-            background: "rgba(26,20,16,0.6)",
-            border: `1px solid ${rankStyle.border}`,
-            padding: "1.2rem 1.8rem",
-            textAlign: "center",
-            flexShrink: 0,
-          }}>
-            <div style={{ fontSize: "0.58rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#8C8070", marginBottom: "0.4rem" }}>
-              Completion
-            </div>
+          {/* Progress bar */}
+          <div style={{ marginTop: "2rem", height: "1px", background: "rgba(184,150,90,0.12)" }}>
             <div style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "2.5rem", fontWeight: 300, color: rankStyle.color, lineHeight: 1,
-            }}>
-              {pct}%
-            </div>
+              height: "100%", width: `${pct}%`,
+              background: rankStyle.color,
+              transition: "width 0.6s ease",
+            }} />
           </div>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{ position: "relative", zIndex: 3, marginTop: "2rem", height: "1px", background: "rgba(184,150,90,0.12)" }}>
-          <div style={{
-            height: "100%", width: `${pct}%`,
-            background: rankStyle.color,
-            transition: "width 0.6s ease",
-          }} />
         </div>
       </div>
 
