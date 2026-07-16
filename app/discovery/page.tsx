@@ -180,13 +180,6 @@ export default function DiscoveryPage() {
         }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", zIndex: 3, background: "linear-gradient(to right, transparent, #B8965A, transparent)" }} />
 
-        {/* Nav */}
-        <div style={{ position: "absolute", top: "1.5rem", left: "1.5rem", zIndex: 3 }}>
-          <Link href="/regions" style={{ fontSize: "0.58rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#F5F0E8", textDecoration: "none" }}>
-            ← Regions
-          </Link>
-        </div>
-
         {/* Badge */}
         <div style={{ position: "relative", zIndex: 3 }}>
           <div style={{
