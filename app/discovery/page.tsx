@@ -159,7 +159,7 @@ export default function DiscoveryPage() {
             fill
             priority
             sizes="100vw"
-            style={{ objectFit: "cover" }}
+            style={{ objectFit: "cover", filter: "grayscale(100%)" }}
           />
         </div>
 
