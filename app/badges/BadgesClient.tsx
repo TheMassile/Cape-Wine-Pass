@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 
 const MILESTONES = [
@@ -105,20 +105,9 @@ export default function BadgesClient() {
       <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "#F5F0E8", marginBottom: "0.5rem" }}>
         Sign in to see your badges
       </div>
-      <p style={{ fontSize: "0.75rem", color: "#8C8070", lineHeight: 1.7, marginBottom: "1.5rem" }}>
+      <p style={{ fontSize: "0.75rem", color: "#8C8070", lineHeight: 1.7 }}>
         Your milestones and rank are saved to your account.
       </p>
-      <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", flexWrap: "wrap" }}>
-        <Link href="/login" style={{ display: "inline-block", background: "#6B1A2A", border: "1px solid #8C3042", color: "#F5F0E8", padding: "0.55rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.62rem", letterSpacing: "0.18em", textTransform: "uppercase", textDecoration: "none" }}>
-          Sign in
-        </Link>
-        <span style={{ fontSize: "0.68rem", color: "#8C8070" }}>
-          No account?{" "}
-          <Link href="/onboarding" style={{ color: "#D4AE7A", textDecoration: "underline" }}>
-            Sign up
-          </Link>
-        </span>
-      </div>
     </div>
   );
 
@@ -139,8 +128,25 @@ export default function BadgesClient() {
         position: "relative",
         overflow: "hidden",
       }}>
+        {/* Background photo */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+          <Image
+            src="/images/badges-cellar.jpg"
+            alt="Dimly lit wine cellar with oak barrels"
+            fill
+            sizes="(max-width: 768px) 100vw, 900px"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
+
+        {/* Dark overlay for text legibility */}
         <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(115deg, rgba(26,20,16,0.94) 0%, rgba(26,20,16,0.86) 45%, rgba(26,20,16,0.65) 100%)",
+        }} />
+
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: "2px", zIndex: 2,
           background: `linear-gradient(to right, #6B1A2A, ${rankStyle.color})`,
         }} />
         {/* Large background rank numeral — sits behind the rank text */}
@@ -148,13 +154,13 @@ export default function BadgesClient() {
           position: "absolute", left: "1.5rem", top: "50%", transform: "translateY(-50%)",
           fontFamily: "'Cormorant Garamond', serif",
           fontSize: "9rem", fontWeight: 300, lineHeight: 1,
-          color: "rgba(184,150,90,0.05)", pointerEvents: "none",
-          userSelect: "none", zIndex: 0,
+          color: "rgba(184,150,90,0.08)", pointerEvents: "none",
+          userSelect: "none", zIndex: 2,
         }}>
           {rankStyle.roman}
         </div>
 
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1.5rem" }}>
+        <div style={{ position: "relative", zIndex: 3, display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1.5rem" }}>
           <div>
             <div style={{ fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#8C8070", marginBottom: "0.8rem" }}>
               Current rank
@@ -177,7 +183,7 @@ export default function BadgesClient() {
           </div>
 
           <div style={{
-            background: "rgba(26,20,16,0.5)",
+            background: "rgba(26,20,16,0.6)",
             border: `1px solid ${rankStyle.border}`,
             padding: "1.2rem 1.8rem",
             textAlign: "center",
@@ -196,7 +202,7 @@ export default function BadgesClient() {
         </div>
 
         {/* Progress bar */}
-        <div style={{ marginTop: "2rem", height: "1px", background: "rgba(184,150,90,0.12)" }}>
+        <div style={{ position: "relative", zIndex: 3, marginTop: "2rem", height: "1px", background: "rgba(184,150,90,0.12)" }}>
           <div style={{
             height: "100%", width: `${pct}%`,
             background: rankStyle.color,

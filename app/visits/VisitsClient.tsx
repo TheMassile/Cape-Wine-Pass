@@ -287,14 +287,38 @@ export default function VisitsClient() {
             {s.value !== null ? (
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2.2rem", fontWeight: 300, color: "#D4AE7A", lineHeight: 1 }}>{s.value}</div>
             ) : (
-              <select
-                value={sortMode}
-                onChange={e => setSortMode(e.target.value as SortMode)}
-                style={{ background: "transparent", border: "none", color: "#D4AE7A", fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", cursor: "pointer", padding: 0, outline: "none" }}
-              >
-                <option value="recent" style={{ background: "#2C2420" }}>Most recent</option>
-                <option value="favorites" style={{ background: "#2C2420" }}>Favourites first</option>
-              </select>
+              <div style={{ position: "relative", width: "100%" }}>
+                <select
+                  value={sortMode}
+                  onChange={e => setSortMode(e.target.value as SortMode)}
+                  style={{
+                    width: "100%",
+                    maxWidth: "100%",
+                    boxSizing: "border-box",
+                    background: "transparent",
+                    border: "none",
+                    color: "#D4AE7A",
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "1.1rem",
+                    cursor: "pointer",
+                    padding: "0 1.3rem 0 0",
+                    margin: 0,
+                    outline: "none",
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                    appearance: "none",
+                  }}
+                >
+                  <option value="recent" style={{ background: "#2C2420" }}>Most recent</option>
+                  <option value="favorites" style={{ background: "#2C2420" }}>Favourites first</option>
+                </select>
+                <svg
+                  width="10" height="10" viewBox="0 0 10 10" fill="none"
+                  style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+                >
+                  <path d="M1.5 3.5L5 7L8.5 3.5" stroke="#D4AE7A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
             )}
           </div>
         ))}
