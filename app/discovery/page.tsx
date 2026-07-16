@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/app/lib/supabaseClient";
 
@@ -21,6 +22,15 @@ export default function DiscoveryPage() {
   const [website, setWebsite]       = useState("");
   const [status, setStatus]         = useState<Status>("idle");
   const [focused, setFocused]       = useState<string | null>(null);
+
+  function resetForm() {
+    setStatus("idle");
+    setEstateName("");
+    setRegion("");
+    setVisitDate("");
+    setNotes("");
+    setWebsite("");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -100,18 +110,21 @@ export default function DiscoveryPage() {
             Your discovery has been submitted for review. If it meets our criteria we will add it to the Cape Wine Pass and credit the find to you.
           </p>
           <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/regions" style={{
-              background: "#6B1A2A", border: "1px solid #8C3042",
-              color: "#F5F0E8", padding: "0.8rem 2rem",
-              fontFamily: "'Montserrat', sans-serif",
-              fontSize: "0.65rem", fontWeight: 500,
-              letterSpacing: "0.2em", textTransform: "uppercase",
-              textDecoration: "none",
-            }}>
-              Back to regions
-            </Link>
             <button
-              onClick={() => { setStatus("idle"); setEstateName(""); setRegion(""); setVisitDate(""); setNotes(""); setWebsite(""); }}
+              onClick={resetForm}
+              style={{
+                background: "#6B1A2A", border: "1px solid #8C3042",
+                color: "#F5F0E8", padding: "0.8rem 2rem",
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: "0.65rem", fontWeight: 500,
+                letterSpacing: "0.2em", textTransform: "uppercase",
+                cursor: "pointer",
+              }}
+            >
+              Back to Discoveries
+            </button>
+            <button
+              onClick={resetForm}
               style={{
                 background: "transparent", border: "1px solid rgba(184,150,90,0.2)",
                 color: "#8C8070", padding: "0.8rem 2rem",
@@ -133,28 +146,45 @@ export default function DiscoveryPage() {
 
       {/* ── HERO HEADER ── */}
       <div style={{
-        background: "#2C2420",
         borderBottom: "1px solid rgba(184,150,90,0.15)",
         padding: "4rem 1.5rem 3rem",
         position: "relative", overflow: "hidden",
         textAlign: "center",
       }}>
+        {/* Background photo */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+          <Image
+            src="/images/discovery-entrance.jpg"
+            alt="Entrance to a historic South African winery"
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
+
+        {/* Dark overlay for text legibility */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(180deg, rgba(26,20,16,0.82) 0%, rgba(26,20,16,0.9) 60%, rgba(26,20,16,0.97) 100%)",
+        }} />
+
         {/* Background glow */}
         <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
+          position: "absolute", inset: 0, pointerEvents: "none", zIndex: 2,
           background: "radial-gradient(ellipse 60% 80% at 50% 100%, rgba(107,26,42,0.25) 0%, transparent 70%)",
         }} />
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(to right, transparent, #B8965A, transparent)" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", zIndex: 3, background: "linear-gradient(to right, transparent, #B8965A, transparent)" }} />
 
         {/* Nav */}
-        <div style={{ position: "absolute", top: "1.5rem", left: "1.5rem" }}>
+        <div style={{ position: "absolute", top: "1.5rem", left: "1.5rem", zIndex: 3 }}>
           <Link href="/regions" style={{ fontSize: "0.58rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8C8070", textDecoration: "none" }}>
             ← Regions
           </Link>
         </div>
 
         {/* Badge */}
-        <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ position: "relative", zIndex: 3 }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: "0.5rem",
             border: "1px solid rgba(184,150,90,0.3)",
@@ -172,23 +202,24 @@ export default function DiscoveryPage() {
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
             fontWeight: 300, color: "#F5F0E8",
-            lineHeight: 1.05, marginBottom: "1rem",
+            lineHeight: 1.05,
           }}>
             Found something <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>special</em>?
           </h1>
-
-          <p style={{
-            fontSize: "0.8rem", color: "#8C8070",
-            lineHeight: 1.9, maxWidth: "480px",
-            margin: "0 auto",
-          }}>
-            If you've discovered a wine estate that deserves a place on the Cape Wine Pass, tell us about it. Every great find starts with someone paying attention.
-          </p>
         </div>
       </div>
 
       {/* ── FORM ── */}
       <div style={{ maxWidth: "680px", margin: "0 auto", padding: "3rem 1.5rem" }}>
+
+        {/* Intro copy, moved down from the header */}
+        <p style={{
+          fontSize: "0.8rem", color: "#8C8070",
+          lineHeight: 1.9, maxWidth: "480px",
+          margin: "0 auto 2.5rem", textAlign: "center",
+        }}>
+          If you've discovered a wine estate that deserves a place on the Cape Wine Pass, tell us about it. Every great find starts with someone paying attention.
+        </p>
 
         {/* Criteria note */}
         <div style={{
@@ -198,12 +229,36 @@ export default function DiscoveryPage() {
           marginBottom: "3rem",
         }}>
           {[
-            { icon: "🍷", label: "Open for tasting" },
-            { icon: "📍", label: "Western Cape" },
-            { icon: "✨", label: "Worth the visit" },
+            {
+              label: "Open for tasting",
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 3h10l-1 7a4 4 0 01-8 0L7 3z" />
+                  <path d="M12 14v6" />
+                  <path d="M9 20h6" />
+                </svg>
+              ),
+            },
+            {
+              label: "Western Cape",
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 21s-6.5-5.6-6.5-11A6.5 6.5 0 0112 3.5a6.5 6.5 0 016.5 6.5c0 5.4-6.5 11-6.5 11z" />
+                  <circle cx="12" cy="10" r="2.2" />
+                </svg>
+              ),
+            },
+            {
+              label: "Worth the visit",
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8965A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3l1.9 5.6 5.9.1-4.7 3.6 1.8 5.7-5-3.5-5 3.5 1.8-5.7-4.7-3.6 5.9-.1z" />
+                </svg>
+              ),
+            },
           ].map(c => (
             <div key={c.label} style={{ background: "#2C2420", padding: "1.2rem", textAlign: "center" }}>
-              <div style={{ fontSize: "1.1rem", marginBottom: "0.4rem" }}>{c.icon}</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.5rem" }}>{c.icon}</div>
               <div style={{ fontSize: "0.58rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#8C8070" }}>{c.label}</div>
             </div>
           ))}
