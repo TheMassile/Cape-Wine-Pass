@@ -222,9 +222,17 @@ export default function RegionsProgress({ regions }: { regions: RegionRow[] }) {
               Sign out
             </button>
           ) : (
-            <Link href="/login" style={{ display: "inline-block", background: "#6B1A2A", border: "1px solid #8C3042", color: "#F5F0E8", padding: "0.55rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.62rem", letterSpacing: "0.18em", textTransform: "uppercase", textDecoration: "none" }}>
-              Sign in
-            </Link>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.6rem" }}>
+              <Link href="/login" style={{ display: "inline-block", background: "#6B1A2A", border: "1px solid #8C3042", color: "#F5F0E8", padding: "0.55rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.62rem", letterSpacing: "0.18em", textTransform: "uppercase", textDecoration: "none" }}>
+                Sign in
+              </Link>
+              <div style={{ fontSize: "0.68rem", color: "#8C8070", whiteSpace: "nowrap" }}>
+                No account?{" "}
+                <Link href="/onboarding" style={{ color: "#D4AE7A", textDecoration: "underline" }}>
+                  Sign up
+                </Link>
+              </div>
+            </div>
           )}
         </div>
       </div>

@@ -307,7 +307,7 @@ export default function HomePage() {
                 Start exploring
               </Link>
               <Link href="/login" className="btn-secondary">
-                Create a free account →
+                Create your account →
               </Link>
             </div>
           </div>

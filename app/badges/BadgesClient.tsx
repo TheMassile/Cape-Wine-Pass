@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { supabase } from "../lib/supabaseClient";
 
 const MILESTONES = [
@@ -104,9 +105,20 @@ export default function BadgesClient() {
       <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "#F5F0E8", marginBottom: "0.5rem" }}>
         Sign in to see your badges
       </div>
-      <p style={{ fontSize: "0.75rem", color: "#8C8070", lineHeight: 1.7 }}>
+      <p style={{ fontSize: "0.75rem", color: "#8C8070", lineHeight: 1.7, marginBottom: "1.5rem" }}>
         Your milestones and rank are saved to your account.
       </p>
+      <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", flexWrap: "wrap" }}>
+        <Link href="/login" style={{ display: "inline-block", background: "#6B1A2A", border: "1px solid #8C3042", color: "#F5F0E8", padding: "0.55rem 1.4rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.62rem", letterSpacing: "0.18em", textTransform: "uppercase", textDecoration: "none" }}>
+          Sign in
+        </Link>
+        <span style={{ fontSize: "0.68rem", color: "#8C8070" }}>
+          No account?{" "}
+          <Link href="/onboarding" style={{ color: "#D4AE7A", textDecoration: "underline" }}>
+            Sign up
+          </Link>
+        </span>
+      </div>
     </div>
   );
 

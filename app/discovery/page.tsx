@@ -214,6 +214,12 @@ export default function DiscoveryPage() {
             <p style={{ fontSize: "0.75rem", color: "#D4AE7A", lineHeight: 1.7, margin: 0 }}>
               You need to be signed in to submit a discovery. <Link href="/login" style={{ color: "#D4AE7A", borderBottom: "1px solid rgba(184,150,90,0.4)" }}>Sign in here →</Link>
             </p>
+            <p style={{ fontSize: "0.72rem", color: "#8C8070", lineHeight: 1.7, margin: "0.5rem 0 0" }}>
+              No account?{" "}
+              <Link href="/onboarding" style={{ color: "#D4AE7A", textDecoration: "underline" }}>
+                Sign up
+              </Link>
+            </p>
           </div>
         )}
 
