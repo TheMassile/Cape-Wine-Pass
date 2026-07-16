@@ -75,7 +75,20 @@ export default function VisitedToggle({
     <button
       onClick={onToggle}
       disabled={disabled || saving}
-      className="rounded-full border px-3 py-1 text-xs disabled:opacity-60"
+      style={{
+        background: visited ? "transparent" : "#B8965A",
+        border: visited ? "1px solid rgba(184,150,90,0.4)" : "1px solid #B8965A",
+        color: visited ? "#D4AE7A" : "#F5F0E8",
+        padding: "0.4rem 0.9rem",
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: "0.62rem",
+        fontWeight: 500,
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+        cursor: disabled || saving ? "not-allowed" : "pointer",
+        opacity: disabled || saving ? 0.6 : 1,
+        transition: "all 0.2s",
+      }}
     >
       {saving ? "Saving..." : visited ? "Visited ✓" : "Mark visited"}
     </button>
