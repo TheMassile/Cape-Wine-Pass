@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import RegionsProgress from "./RegionsProgress";
 
@@ -46,10 +47,34 @@ export default async function RegionsPage() {
   const totalEstates = regions.reduce((sum, r) => sum + r.total, 0);
 
   return (
-    <main style={{ minHeight: "100vh", padding: "3rem 1.5rem" }}>
-      <div style={{ maxWidth: "860px", margin: "0 auto" }}>
+    <main style={{ minHeight: "100vh" }}>
 
-        <div style={{ marginBottom: "0.5rem" }}>
+      {/* ── HERO BANNER ── */}
+      <div style={{
+        position: "relative", overflow: "hidden",
+        minHeight: "380px",
+        display: "flex", alignItems: "center",
+        borderBottom: "1px solid rgba(184,150,90,0.15)",
+      }}>
+        {/* Background photo */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+          <Image
+            src="/images/regions-hero.jpg"
+            alt="Vineyards and mountains across the Western Cape wine regions"
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
+
+        {/* Light overlay so the photo stays the focal point */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(100deg, rgba(26,20,16,0.88) 0%, rgba(26,20,16,0.5) 40%, rgba(26,20,16,0.15) 75%, rgba(26,20,16,0.05) 100%)",
+        }} />
+
+        <div className="page-shell" style={{ position: "relative", zIndex: 2, padding: "3rem 0" }}>
           <div style={{
             fontSize: "0.6rem", letterSpacing: "0.25em",
             textTransform: "uppercase", color: "#B8965A", marginBottom: "0.8rem"
@@ -60,15 +85,19 @@ export default async function RegionsPage() {
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: "clamp(2.2rem, 5vw, 3.5rem)",
             fontWeight: 300, color: "#F5F0E8",
-            lineHeight: 1.05, marginBottom: "0.5rem"
+            lineHeight: 1.05, marginBottom: "0.5rem",
+            textShadow: "0 2px 12px rgba(0,0,0,0.5)",
           }}>
             Wine <em style={{ fontStyle: "italic", color: "#D4AE7A" }}>Regions</em>
           </h1>
-          <p style={{ fontSize: "0.78rem", color: "#8C8070", letterSpacing: "0.05em" }}>
+          <p style={{ fontSize: "0.78rem", color: "#D4C9B8", letterSpacing: "0.05em" }}>
             {totalEstates} estates across {regions.length} regions
           </p>
         </div>
+      </div>
 
+      {/* ── REGION LIST ── */}
+      <div className="page-shell" style={{ padding: "2.5rem 0" }}>
         <RegionsProgress regions={regions} />
       </div>
     </main>
