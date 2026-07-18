@@ -141,12 +141,7 @@ export default async function EstatePage({
               </div>
               {item.value ? (
                 item.isLink ? (
-                  
-                    href={item.value.startsWith("http") ? item.value : `https://${item.value}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: "0.82rem", color: "#D4AE7A", textDecoration: "none", borderBottom: "1px solid rgba(184,150,90,0.3)" }}
-                  >
+                  <a href={item.value.startsWith("http") ? item.value : `https://${item.value}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.82rem", color: "#D4AE7A", textDecoration: "none", borderBottom: "1px solid rgba(184,150,90,0.3)" }}>
                     {item.value}
                   </a>
                 ) : item.isPhone ? (
@@ -161,18 +156,7 @@ export default async function EstatePage({
               )}
 
               {item.isHours && (
-                
-                  href={googleMapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-block",
-                    fontSize: "0.62rem",
-                    color: "#B8965A",
-                    textDecoration: "underline",
-                    marginTop: item.value ? "0.5rem" : "0.3rem",
-                  }}
-                >
+                <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", fontSize: "0.62rem", color: "#B8965A", textDecoration: "underline", marginTop: item.value ? "0.5rem" : "0.3rem" }}>
                   Check current hours on Google Maps →
                 </a>
               )}
@@ -202,18 +186,7 @@ export default async function EstatePage({
           </Link>
 
           {estate.website && (
-            
-              href={estate.website.startsWith("http") ? estate.website : `https://${estate.website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                background: "transparent", border: "1px solid rgba(184,150,90,0.2)",
-                color: "#D4AE7A", padding: "0.7rem 1.8rem",
-                fontFamily: "'Montserrat', sans-serif",
-                fontSize: "0.62rem", letterSpacing: "0.2em",
-                textTransform: "uppercase", textDecoration: "none",
-              }}
-            >
+            <a href={estate.website.startsWith("http") ? estate.website : `https://${estate.website}`} target="_blank" rel="noopener noreferrer" style={{ background: "transparent", border: "1px solid rgba(184,150,90,0.2)", color: "#D4AE7A", padding: "0.7rem 1.8rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.62rem", letterSpacing: "0.2em", textTransform: "uppercase", textDecoration: "none" }}>
               Visit website →
             </a>
           )}
