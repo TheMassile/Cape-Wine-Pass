@@ -49,6 +49,10 @@ export default async function EstatePage({
     estate.group_friendly === "Y" && { label: "Group friendly", color: "#8CB87A" },
   ].filter(Boolean) as { label: string; color: string }[];
 
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${estate["Estate Name"]} ${estate.Region} Western Cape wine estate`
+  )}`;
+
   return (
     <main style={{ minHeight: "100vh", padding: "3rem 1.5rem" }}>
       <div style={{ maxWidth: "780px", margin: "0 auto" }}>
@@ -124,7 +128,7 @@ export default async function EstatePage({
           marginBottom: "1px",
         }}>
           {[
-            { label: "Opening hours", value: estate.opening_hours, icon: "🕐" },
+            { label: "Opening hours", value: estate.opening_hours, icon: "🕐", isHours: true },
             { label: "Phone", value: estate.phone, icon: "📞", isPhone: true },
             { label: "Website", value: estate.website, icon: "🌐", isLink: true },
             { label: "Platters", value: estate.platter_available === "Y" ? "Available" : estate.platter_available === "N" ? "Not available" : null, icon: "🧀" },
@@ -137,7 +141,7 @@ export default async function EstatePage({
               </div>
               {item.value ? (
                 item.isLink ? (
-                  <a
+                  
                     href={item.value.startsWith("http") ? item.value : `https://${item.value}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -154,6 +158,23 @@ export default async function EstatePage({
                 )
               ) : (
                 <div style={{ fontSize: "0.75rem", color: "#8C8070", fontStyle: "italic" }}>Not yet available</div>
+              )}
+
+              {item.isHours && (
+                
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-block",
+                    fontSize: "0.62rem",
+                    color: "#B8965A",
+                    textDecoration: "underline",
+                    marginTop: item.value ? "0.5rem" : "0.3rem",
+                  }}
+                >
+                  Check current hours on Google Maps →
+                </a>
               )}
             </div>
           ))}
@@ -181,7 +202,7 @@ export default async function EstatePage({
           </Link>
 
           {estate.website && (
-            <a
+            
               href={estate.website.startsWith("http") ? estate.website : `https://${estate.website}`}
               target="_blank"
               rel="noopener noreferrer"
