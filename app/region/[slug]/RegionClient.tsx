@@ -198,7 +198,7 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
             <div key={id} style={{ background: visited ? "rgba(107,26,42,0.18)" : "#2C2420", padding: "1.4rem 2rem", transition: "background 0.2s", position: "relative" }}>
               {visited && <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "2px", background: "#6B1A2A" }} />}
 
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "0.8rem" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "0.8rem", flexWrap: "wrap" }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap", marginBottom: "0.25rem" }}>
 
@@ -243,7 +243,7 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
                   <div style={{ fontSize: "0.58rem", color: "#8C8070", letterSpacing: "0.08em" }}>{id}</div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexShrink: 0 }}>
+                <div className="estate-actions" style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexShrink: 0 }}>
                   <VisitedToggle
                     estateId={id}
                     visited={visited}
@@ -274,6 +274,17 @@ export default function RegionClient({ regionName, estates }: { regionName: stri
       </div>
 
       <Toast show={toast.show} message={toast.message} tone={toast.tone} />
+
+      <style>{`
+        .back-link:hover { color: #D4AE7A !important; }
+        @media (max-width: 520px) {
+          .estate-actions {
+            width: 100%;
+            justify-content: flex-end;
+            margin-top: 0.4rem;
+          }
+        }
+      `}</style>
     </>
   );
 }

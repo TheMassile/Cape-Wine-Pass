@@ -2,6 +2,8 @@ import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import RegionsProgress from "./RegionsProgress";
 
+export const dynamic = "force-dynamic";
+
 type RegionRow = {
   Region: string;
   total: number;
@@ -14,8 +16,7 @@ export default async function RegionsPage() {
 
   const { data, error } = await supabase
     .from("estates")
-    .select('"Region","Status"')
-    .neq("Status", "Closed");
+    .select('"Region","Status"');
 
   if (error) {
     return (
@@ -36,7 +37,9 @@ export default async function RegionsPage() {
   const counts = new Map<string, number>();
   for (const row of data ?? []) {
     const region = (row as any)["Region"] as string | null;
+    const status = (row as any)["Status"] as string | null;
     if (!region) continue;
+    if (status === "Closed") continue;
     counts.set(region, (counts.get(region) ?? 0) + 1);
   }
 
