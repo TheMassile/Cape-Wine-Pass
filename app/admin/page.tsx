@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { supabase } from "@/app/lib/supabaseClient";
 
 type Estate = {
@@ -19,11 +20,13 @@ type Estate = {
 };
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+type AccessState = "checking" | "signed-out" | "not-admin" | "admin" | "error";
 
 export default function AdminPage() {
-  const [authed, setAuthed]         = useState(false);
-  const [pwInput, setPwInput]       = useState("");
-  const [pwError, setPwError]       = useState(false);
+  // Access is decided by the database: you must be signed in AND listed in the
+  // "admins" table. There is no shared password any more.
+  const [access, setAccess]         = useState<AccessState>("checking");
+  const authed = access === "admin";
 
   const [estates, setEstates]       = useState<Estate[]>([]);
   const [loading, setLoading]       = useState(false);
@@ -34,13 +37,25 @@ export default function AdminPage() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [completedOnly, setCompletedOnly] = useState(false);
 
-  const ADMIN_PW = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "capewinepassadmin";
-
-  function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    if (pwInput === ADMIN_PW) { setAuthed(true); }
-    else { setPwError(true); setTimeout(() => setPwError(false), 2000); }
-  }
+  useEffect(() => {
+    let cancelled = false;
+    async function checkAccess() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData.session?.user;
+      if (!user) { if (!cancelled) setAccess("signed-out"); return; }
+      const { data, error } = await supabase
+        .from("admins")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) { setAccess("error"); return; }
+      setAccess(data ? "admin" : "not-admin");
+    }
+    checkAccess();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => { checkAccess(); });
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
+  }, []);
 
   useEffect(() => {
     if (!authed) return;
@@ -98,12 +113,15 @@ export default function AdminPage() {
       platter_available: form.platter_available ?? null,
       group_friendly: form.group_friendly ?? null,
     };
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("estates")
       .update(payload)
-      .eq('"Estate ID"', selected["Estate ID"]);
+      .eq('"Estate ID"', selected["Estate ID"])
+      .select('"Estate ID"');
 
-    if (error) { setSaveStatus("error"); return; }
+    // If the database refused the change, no rows come back. Treat that as an error
+    // rather than pretending it saved.
+    if (error || !updated || updated.length === 0) { setSaveStatus("error"); return; }
 
     // Update local state
     setEstates(prev => prev.map(e =>
@@ -142,22 +160,19 @@ export default function AdminPage() {
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(to right, #6B1A2A, #B8965A)" }} />
             <div style={{ fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#B8965A", marginBottom: "0.6rem" }}>Admin access</div>
             <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", fontWeight: 300, color: "#F5F0E8", marginBottom: "1.5rem" }}>Estate Manager</h1>
-            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div>
-                <label style={labelStyle}>Admin password</label>
-                <input
-                  type="password" value={pwInput}
-                  onChange={e => setPwInput(e.target.value)}
-                  placeholder="Enter password"
-                  style={{ ...inputStyle, borderColor: pwError ? "rgba(192,57,43,0.5)" : "rgba(184,150,90,0.2)" }}
-                  autoFocus
-                />
-                {pwError && <div style={{ fontSize: "0.65rem", color: "#E07070", marginTop: "0.4rem" }}>Incorrect password</div>}
-              </div>
-              <button type="submit" style={{ background: "#6B1A2A", border: "1px solid #8C3042", color: "#F5F0E8", padding: "0.85rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.68rem", fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer" }}>
-                Enter
-              </button>
-            </form>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.78rem", color: "#B8AFA0", lineHeight: 1.7 }}>
+              {access === "checking" && <p>Checking your access…</p>}
+              {access === "signed-out" && (
+                <>
+                  <p>Sign in with your Cape Wine Pass account to manage estates.</p>
+                  <Link href="/login" style={{ background: "#6B1A2A", border: "1px solid #8C3042", color: "#F5F0E8", padding: "0.85rem", fontFamily: "'Montserrat', sans-serif", fontSize: "0.68rem", fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase", textAlign: "center", textDecoration: "none" }}>
+                    Sign in
+                  </Link>
+                </>
+              )}
+              {access === "not-admin" && <p>Your account doesn&apos;t have admin access.</p>}
+              {access === "error" && <p style={{ color: "#E07070" }}>Couldn&apos;t check admin access. Please try again later.</p>}
+            </div>
           </div>
         </div>
       </main>
