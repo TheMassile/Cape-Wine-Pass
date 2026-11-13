@@ -17,6 +17,8 @@ type Estate = {
   "Public Tasting (Y/N)"?: string | null;
   platter_available?: string | null;
   group_friendly?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -36,6 +38,9 @@ export default function AdminPage() {
   const [form, setForm]             = useState<Partial<Estate>>({});
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [completedOnly, setCompletedOnly] = useState(false);
+  const [missingGpsOnly, setMissingGpsOnly] = useState(false);
+  const [coordsInput, setCoordsInput] = useState("");
+  const [coordsError, setCoordsError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,7 +67,7 @@ export default function AdminPage() {
     setLoading(true);
     supabase
       .from("estates")
-      .select(`"Estate ID","Estate Name","Region","Restaurant (Y/N)","Appointment Only (Y/N)","Public Tasting (Y/N)",phone,website,description,opening_hours,platter_available,group_friendly`)
+      .select(`"Estate ID","Estate Name","Region","Restaurant (Y/N)","Appointment Only (Y/N)","Public Tasting (Y/N)",phone,website,description,opening_hours,platter_available,group_friendly,latitude,longitude`)
       .neq("Status", "Closed")
       .order("Region")
       .then(({ data }) => {
@@ -78,19 +83,22 @@ export default function AdminPage() {
     return estates.filter(e => {
       if (regionFilter !== "All" && e.Region !== regionFilter) return false;
       if (qq && !(e["Estate Name"] ?? "").toLowerCase().includes(qq) && !(e["Estate ID"] ?? "").toLowerCase().includes(qq)) return false;
+      if (missingGpsOnly && e.latitude != null) return false;
       if (completedOnly) {
         const hasData = e.phone || e.website || e.description || e.opening_hours;
         if (!hasData) return false;
       }
       return true;
     });
-  }, [estates, q, regionFilter, completedOnly]);
+  }, [estates, q, regionFilter, completedOnly, missingGpsOnly]);
 
   const totalWithData = useMemo(() => estates.filter(e => e.phone || e.website || e.description || e.opening_hours).length, [estates]);
 
   function selectEstate(estate: Estate) {
     setSelected(estate);
     setForm({ ...estate });
+    setCoordsInput(estate.latitude != null && estate.longitude != null ? `${estate.latitude}, ${estate.longitude}` : "");
+    setCoordsError(null);
     setSaveStatus("idle");
   }
 
@@ -101,6 +109,18 @@ export default function AdminPage() {
 
   async function saveEstate() {
     if (!selected) return;
+
+    // Coordinates are typed as "latitude, longitude", the way Google Maps copies them.
+    let latitude: number | null = null;
+    let longitude: number | null = null;
+    if (coordsInput.trim()) {
+      const parts = coordsInput.split(",").map(p => Number(p.trim()));
+      const ok = parts.length === 2 && parts.every(n => Number.isFinite(n))
+        && parts[0] <= -30 && parts[0] >= -35 && parts[1] >= 17 && parts[1] <= 24.5;
+      if (!ok) { setCoordsError("Paste as: -33.9321, 18.8602 (must be in the Western Cape)"); setSaveStatus("error"); return; }
+      [latitude, longitude] = parts;
+    }
+    setCoordsError(null);
     setSaveStatus("saving");
     const payload = {
       phone: form.phone ?? null,
@@ -112,6 +132,8 @@ export default function AdminPage() {
       "Public Tasting (Y/N)": form["Public Tasting (Y/N)"] ?? null,
       platter_available: form.platter_available ?? null,
       group_friendly: form.group_friendly ?? null,
+      latitude,
+      longitude,
     };
     const { data: updated, error } = await supabase
       .from("estates")
@@ -225,6 +247,18 @@ export default function AdminPage() {
             >
               Has data
             </button>
+            <button
+              onClick={() => setMissingGpsOnly(v => !v)}
+              style={{
+                fontSize: "0.58rem", letterSpacing: "0.15em", textTransform: "uppercase",
+                padding: "0.4rem 0.8rem", cursor: "pointer", fontFamily: "'Montserrat', sans-serif",
+                background: missingGpsOnly ? "#6B1A2A" : "transparent",
+                border: missingGpsOnly ? "1px solid #8C3042" : "1px solid rgba(184,150,90,0.2)",
+                color: missingGpsOnly ? "#F5F0E8" : "#8C8070",
+              }}
+            >
+              Missing GPS
+            </button>
           </div>
 
           <div style={{ fontSize: "0.58rem", color: "#8C8070", marginTop: "0.6rem", letterSpacing: "0.1em" }}>
@@ -324,6 +358,19 @@ export default function AdminPage() {
               <div>
                 <label style={labelStyle}>Opening hours</label>
                 <input type="text" value={form.opening_hours ?? ""} onChange={e => updateForm("opening_hours", e.target.value)} placeholder="Mon–Fri 9am–5pm, Sat 9am–3pm" style={inputStyle} />
+              </div>
+
+              {/* GPS coordinates */}
+              <div>
+                <label style={labelStyle}>GPS coordinates (latitude, longitude)</label>
+                <input type="text" value={coordsInput} onChange={e => { setCoordsInput(e.target.value); setSaveStatus("idle"); }} placeholder="-33.9321, 18.8602" style={{ ...inputStyle, borderColor: coordsError ? "rgba(192,57,43,0.5)" : "rgba(184,150,90,0.2)" }} />
+                {coordsError && <div style={{ fontSize: "0.65rem", color: "#E07070", marginTop: "0.4rem" }}>{coordsError}</div>}
+                <div style={{ fontSize: "0.62rem", color: "#8C8070", marginTop: "0.4rem", lineHeight: 1.6 }}>
+                  In Google Maps, right-click the tasting room and click the numbers at the top of the menu to copy them, then paste here.{" "}
+                  <a href={coordsInput.trim() ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordsInput.trim())}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${selected["Estate Name"]} ${selected.Region} South Africa`)}`} target="_blank" rel="noopener noreferrer" style={{ color: "#B8965A" }}>
+                    {coordsInput.trim() ? "Check this pin on Google Maps" : "Find on Google Maps"}
+                  </a>
+                </div>
               </div>
 
               {/* Yes/No fields */}
