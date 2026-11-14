@@ -8,6 +8,7 @@ import { Body, Button, ErrorText, Loading } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { fetchEstates, fetchMyCheckins, fetchVisitedIds, type Checkin, type Estate } from '@/lib/data';
 import { colors, fonts, space } from '@/lib/theme';
+import { favouritesLine } from '@/lib/wines';
 
 type CardData = { checkin: Checkin; estate: Estate | undefined; visited: number; total: number };
 
@@ -76,6 +77,9 @@ export default function ShareScreen() {
                 <Text style={{ color: colors.muted }}>{'★'.repeat(5 - data.checkin.rating)}</Text>
               </Text>
             )}
+            {!!favouritesLine(data.checkin) && (
+              <Text style={styles.wines}>{favouritesLine(data.checkin)}</Text>
+            )}
             {!!data.checkin.note && (
               <Text style={styles.note} numberOfLines={5}>
                 “{data.checkin.note}”
@@ -133,6 +137,7 @@ const styles = StyleSheet.create({
   estate: { fontFamily: fonts.serifLight, fontSize: 38, lineHeight: 42, color: colors.text },
   date: { fontFamily: fonts.sansLight, fontSize: 12, color: colors.soft },
   stars: { fontSize: 22, letterSpacing: 3, color: colors.goldLight },
+  wines: { fontFamily: fonts.sans, fontSize: 15, lineHeight: 22, color: colors.text },
   note: { fontFamily: fonts.serif, fontSize: 18, lineHeight: 24, color: colors.soft },
   footer: { gap: space.sm },
   count: { fontFamily: fonts.serif, fontSize: 22, color: colors.text },

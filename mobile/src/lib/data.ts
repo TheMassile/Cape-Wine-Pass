@@ -15,7 +15,9 @@ export type Estate = {
 export async function fetchEstates(): Promise<Estate[]> {
   const { data, error } = await supabase
     .from('estates')
-    .select('"Estate ID","Estate Name","Region","Status","Public Tasting (Y/N)","Appointment Only (Y/N)","Restaurant (Y/N)",latitude,longitude');
+    .select(
+      '"Estate ID","Estate Name","Region","Status","Public Tasting (Y/N)","Appointment Only (Y/N)","Restaurant (Y/N)",latitude,longitude',
+    );
   if (error) throw error;
   return (data ?? [])
     .filter((r: Record<string, unknown>) => r['Status'] !== 'Closed')
@@ -55,6 +57,9 @@ export type Checkin = {
   rating: number | null;
   note: string | null;
   verified: boolean;
+  fav_red: string | null;
+  fav_white: string | null;
+  fav_rose: string | null;
 };
 
 export async function fetchEstate(id: string): Promise<Estate | null> {
@@ -65,7 +70,7 @@ export async function fetchEstate(id: string): Promise<Estate | null> {
 export async function fetchMyCheckins(userId: string, estateId?: string): Promise<Checkin[]> {
   let q = supabase
     .from('checkins')
-    .select('id, estate_id, visited_at, rating, note, verified')
+    .select('id, estate_id, visited_at, rating, note, verified, fav_red, fav_white, fav_rose')
     .eq('user_id', userId)
     .order('visited_at', { ascending: false });
   if (estateId) q = q.eq('estate_id', estateId);
@@ -81,6 +86,7 @@ export async function addCheckin(input: {
   note: string | null;
   latitude: number | null;
   longitude: number | null;
+  favourites?: { fav_red: string | null; fav_white: string | null; fav_rose: string | null };
 }) {
   const { error } = await supabase.from('checkins').insert({
     user_id: input.userId,
@@ -90,6 +96,7 @@ export async function addCheckin(input: {
     latitude: input.latitude,
     longitude: input.longitude,
     source: 'app',
+    ...input.favourites,
   });
   if (error) throw error;
 }
