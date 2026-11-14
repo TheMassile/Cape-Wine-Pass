@@ -10,7 +10,8 @@
 //                                (those are NOT included in the .sql file)
 //
 // It never changes the database itself. It waits 1 second between lookups
-// (OpenStreetMap's rule), so ~425 estates takes about 10 to 15 minutes.
+// (OpenStreetMap's rule). It only looks up estates that still have no coordinates,
+// so you can run it again after pasting in the results. Allow ~20 minutes.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -55,21 +56,54 @@ async function lookup(query) {
   return res.json();
 }
 
-function pickBest(results) {
+// "Rustenberg Wine Estate" -> "Rustenberg", so OpenStreetMap's shorter names still match.
+const SUFFIXES = /\b(wine estate|wine farm|family wines|wine cellar|wine company|wines|wine|estate|vineyards?|winery|cellars?|winemakers?|farm|the)\b/gi;
+const cleanName = (name) => String(name).replace(/[()&,.'’-]/g, " ").replace(SUFFIXES, " ").replace(/\s+/g, " ").trim();
+const words = (s) => cleanName(s).toLowerCase().split(" ").filter((w) => w.length > 2);
+
+function distanceKm(aLat, aLon, bLat, bLon) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(bLat - aLat), dLon = toRad(bLon - aLon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(h));
+}
+
+// A result counts as "sure" if it looks like a wine place, or its name matches the
+// estate's name, AND it's near the other estates already found in that region.
+function pickBest(results, estateName, centre) {
   const ok = results.filter((r) => inWesternCape(Number(r.lat), Number(r.lon)));
-  const wine = ok.find((r) => WINE_TYPES.has(r.type) || /wine|vineyard|cellar/i.test(r.display_name));
-  return wine ? { hit: wine, sure: true } : ok[0] ? { hit: ok[0], sure: false } : null;
+  const near = (r, km) => !centre || distanceKm(centre.lat, centre.lon, Number(r.lat), Number(r.lon)) <= km;
+  const looksWine = (r) => WINE_TYPES.has(r.type) || /wine|vineyard|cellar/i.test(r.display_name);
+  const want = words(estateName);
+  const nameMatch = (r) => {
+    const got = words(r.name || r.display_name.split(",")[0]);
+    return want.length > 0 && want.every((w) => got.includes(w));
+  };
+  const sure = ok.find((r) => (looksWine(r) && near(r, 40)) || (nameMatch(r) && centre && near(r, 25)));
+  if (sure) return { hit: sure, sure: true };
+  const maybe = ok.find((r) => near(r, 40));
+  return maybe ? { hit: maybe, sure: false } : null;
 }
 
 // --- main ------------------------------------------------------------------
 const { data: estates, error } = await supabase
   .from("estates")
-  .select('"Estate ID","Estate Name","Region","Status",latitude');
+  .select('"Estate ID","Estate Name","Region","Status",latitude,longitude');
 if (error) {
   console.error("Couldn't read estates:", error.message);
   console.error("Have you run supabase/migrations/20261114010000_estate_coordinates.sql yet?");
   process.exit(1);
 }
+
+// Middle point of the estates already located in each region, used to sanity-check new matches.
+const centres = new Map();
+for (const e of estates) {
+  if (e.latitude == null || e.longitude == null) continue;
+  const c = centres.get(e.Region) ?? { lat: 0, lon: 0, n: 0 };
+  c.lat += e.latitude; c.lon += e.longitude; c.n += 1;
+  centres.set(e.Region, c);
+}
+for (const c of centres.values()) { c.lat /= c.n; c.lon /= c.n; }
 
 const todo = estates
   .filter((e) => e.latitude == null && e.Status !== "Closed")
@@ -82,11 +116,14 @@ let sure = 0, unsure = 0, missing = 0;
 
 for (const [i, e] of todo.entries()) {
   const name = e["Estate Name"];
-  const queries = [`${name}, ${e.Region}`, `${name} wine`, name];
+  const clean = cleanName(name);
+  const centre = centres.get(e.Region);
+  const queries = [...new Set([`${name}, ${e.Region}`, `${clean}, ${e.Region}`, `${name} wine`, `${clean} wine farm`, clean].filter((q) => q.replace(/,.*/, "").trim()))];
   let best = null;
   for (const q of queries) {
     try {
-      best = pickBest(await lookup(q));
+      const found = pickBest(await lookup(q), name, centre);
+      if (found && (!best || found.sure)) best = found;
     } catch (err) {
       console.log(`  lookup failed (${err.message}), waiting 10s and carrying on`);
       await sleep(10000);
