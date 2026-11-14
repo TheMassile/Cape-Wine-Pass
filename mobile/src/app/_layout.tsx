@@ -51,6 +51,7 @@ function RootStack() {
         <Stack.Screen name="estate/[id]" options={{ title: '' }} />
         <Stack.Screen name="badges" options={{ title: 'Badges' }} />
         <Stack.Screen name="people" options={{ title: 'People' }} />
+        <Stack.Screen name="share" options={{ title: 'Share your visit', presentation: 'modal' }} />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />

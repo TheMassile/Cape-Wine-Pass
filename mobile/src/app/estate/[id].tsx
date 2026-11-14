@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -96,6 +96,13 @@ export default function EstateScreen() {
         )}
 
         {savedMsg && <Body style={{ color: colors.success }}>{savedMsg}</Body>}
+        {savedMsg && history[0] && (
+          <Button
+            variant="outline"
+            label="Share this visit"
+            onPress={() => router.push({ pathname: '/share', params: { checkinId: history[0].id } })}
+          />
+        )}
         {error && <ErrorText message={error} />}
 
         {!composing ? (
@@ -139,6 +146,9 @@ export default function EstateScreen() {
               {c.rating ? `  ·  ${'★'.repeat(c.rating)}` : ''}
             </Text>
             {c.note && <Body>{c.note}</Body>}
+            <Pressable onPress={() => router.push({ pathname: '/share', params: { checkinId: c.id } })} hitSlop={8}>
+              <Text style={styles.shareLink}>Share</Text>
+            </Pressable>
           </Card>
         ))}
       </ScrollView>
@@ -161,4 +171,13 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   when: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.goldLight },
+  shareLink: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    fontFamily: fonts.sansMedium,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: colors.gold,
+  },
 });
