@@ -47,3 +47,49 @@ export async function fetchProfile(userId: string) {
   if (error) throw error;
   return data as { handle: string | null; display_name: string | null; home_region: string | null } | null;
 }
+
+export type Checkin = {
+  id: string;
+  estate_id: string;
+  visited_at: string;
+  rating: number | null;
+  note: string | null;
+  verified: boolean;
+};
+
+export async function fetchEstate(id: string): Promise<Estate | null> {
+  const all = await fetchEstates();
+  return all.find((e) => e.id === id) ?? null;
+}
+
+export async function fetchMyCheckins(userId: string, estateId?: string): Promise<Checkin[]> {
+  let q = supabase
+    .from('checkins')
+    .select('id, estate_id, visited_at, rating, note, verified')
+    .eq('user_id', userId)
+    .order('visited_at', { ascending: false });
+  if (estateId) q = q.eq('estate_id', estateId);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as Checkin[];
+}
+
+export async function addCheckin(input: {
+  userId: string;
+  estateId: string;
+  rating: number | null;
+  note: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}) {
+  const { error } = await supabase.from('checkins').insert({
+    user_id: input.userId,
+    estate_id: input.estateId,
+    rating: input.rating,
+    note: input.note,
+    latitude: input.latitude,
+    longitude: input.longitude,
+    source: 'app',
+  });
+  if (error) throw error;
+}
