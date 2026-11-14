@@ -68,6 +68,9 @@ export default function FeedScreen() {
           <View style={styles.header}>
             <Eyebrow>Feed</Eyebrow>
             <Title>Who&apos;s been where</Title>
+            <Pressable onPress={() => router.push('/leaderboard')} style={styles.findRow}>
+              <Text style={styles.findText}>🏆 Leaderboard</Text>
+            </Pressable>
             <Pressable onPress={() => router.push('/people')} style={styles.findRow}>
               <Text style={styles.findText}>Find people to follow</Text>
               {requests > 0 && (
