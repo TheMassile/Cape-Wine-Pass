@@ -2,8 +2,10 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { FeaturedCard } from '@/components/FeaturedCard';
 import { Body, ErrorText, Eyebrow, Loading, ProgressBar } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
+import { fetchFeatured, type FeaturedSpot } from '@/lib/featured';
 import { fetchEstates, fetchVisitedIds, type Estate } from '@/lib/data';
 import { colors, fonts, space } from '@/lib/theme';
 
@@ -13,6 +15,7 @@ export default function RegionScreen() {
   const [estates, setEstates] = useState<Estate[] | null>(null);
   const [visited, setVisited] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [red, setRed] = useState<FeaturedSpot | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -21,8 +24,18 @@ export default function RegionScreen() {
           fetchEstates(),
           session ? fetchVisitedIds(session.user.id) : Promise.resolve(new Set<string>()),
         ]);
-        setEstates(all.filter((e) => e.region === region));
+        const here = all.filter((e) => e.region === region);
+        setEstates(here);
         setVisited(mine);
+        const ids = new Set(here.map((e) => e.id));
+        fetchFeatured()
+          .then((spots) =>
+            setRed(
+              spots.find((f) => f.slot === 'red_of_region' && (f.region === region || ids.has(f.estateId))) ??
+                null,
+            ),
+          )
+          .catch(() => setRed(null));
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Could not load estates.');
       }
@@ -47,6 +60,12 @@ export default function RegionScreen() {
             </Eyebrow>
             <ProgressBar value={estates?.length ? done / estates.length : 0} />
             {error && <ErrorText message={error} />}
+            {red && (
+              <FeaturedCard
+                spot={red}
+                estateName={estates?.find((e) => e.id === red.estateId)?.name ?? 'A local estate'}
+              />
+            )}
           </View>
         }
         renderItem={({ item }) => {

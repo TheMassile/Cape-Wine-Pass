@@ -261,8 +261,11 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div style={{ fontSize: "0.58rem", color: "#8C8070", marginTop: "0.6rem", letterSpacing: "0.1em" }}>
-            Showing {filtered.length} estates
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.58rem", color: "#8C8070", marginTop: "0.6rem", letterSpacing: "0.1em" }}>
+            <span>Showing {filtered.length} estates</span>
+            <Link href="/admin/featured" style={{ color: "#D4AE7A", textDecoration: "none", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+              Featured spots →
+            </Link>
           </div>
         </div>
 

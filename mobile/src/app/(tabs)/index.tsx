@@ -3,9 +3,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { FeaturedCard } from '@/components/FeaturedCard';
 import { Body, ErrorText, Eyebrow, Loading, ProgressBar, Title } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { regionProgress, type RegionProgress } from '@/lib/badges';
+import { fetchFeatured, type FeaturedSpot } from '@/lib/featured';
 import { fetchEstates, fetchVisitedIds, type Estate } from '@/lib/data';
 import { colors, fonts, space } from '@/lib/theme';
 
@@ -15,6 +17,7 @@ export default function ExploreScreen() {
   const [visited, setVisited] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [featured, setFeatured] = useState<FeaturedSpot[]>([]);
 
   // Fetch everything, then put it on screen. Used on open and on pull-to-refresh.
   const fetchAll = useCallback(
@@ -42,6 +45,10 @@ export default function ExploreScreen() {
   useFocusEffect(
     useCallback(() => {
       show(fetchAll());
+      // Sponsored spots are optional extras: if they fail to load, just don't show them.
+      fetchFeatured()
+        .then(setFeatured)
+        .catch(() => setFeatured([]));
     }, [show, fetchAll]),
   );
 
@@ -77,6 +84,13 @@ export default function ExploreScreen() {
             </Title>
             <ProgressBar value={total ? done / total : 0} />
             {error && <ErrorText message={error} />}
+            {featured.map((f) => (
+              <FeaturedCard
+                key={f.id}
+                spot={f}
+                estateName={estates?.find((e) => e.id === f.estateId)?.name ?? 'A Cape wine estate'}
+              />
+            ))}
           </View>
         }
         renderItem={({ item }) => (
