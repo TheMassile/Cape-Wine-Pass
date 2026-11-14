@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { openPrivacyPolicy } from '@/lib/legal';
+
 import { Body, Button, Card, ErrorText, Eyebrow, Title } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts, space } from '@/lib/theme';
@@ -112,6 +114,15 @@ export default function SignIn() {
                 <Body style={{ flex: 1 }}>I&apos;m 18 or older</Body>
               </Pressable>
             )}
+            {mode === 'signup' && (
+              <Text style={styles.legal}>
+                By creating an account you agree to our{' '}
+                <Text style={styles.legalLink} onPress={openPrivacyPolicy}>
+                  privacy policy
+                </Text>
+                .
+              </Text>
+            )}
 
             {notice && <Body style={{ color: colors.success }}>{notice}</Body>}
             {error && <ErrorText message={error} />}
@@ -176,4 +187,12 @@ const styles = StyleSheet.create({
   boxOn: { backgroundColor: colors.wine, borderColor: colors.wineLight },
   tick: { color: colors.text, fontSize: 14 },
   footer: { textAlign: 'center', marginTop: space.lg },
+  legal: {
+    fontFamily: fonts.sansLight,
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.muted,
+    marginTop: space.sm,
+  },
+  legalLink: { color: colors.goldLight, textDecorationLine: 'underline' },
 });

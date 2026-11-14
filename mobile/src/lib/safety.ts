@@ -28,7 +28,17 @@ export async function fetchBlocked(myId: string): Promise<string[]> {
 }
 
 export async function deleteMyAccount() {
+  await removeMyPhotos();
   const { error } = await supabase.rpc('delete_my_account');
   if (error) throw error;
   await supabase.auth.signOut();
+}
+
+// Profile photos live in storage at avatars/<user id>/…; remove them before the account goes.
+async function removeMyPhotos() {
+  const { data: auth } = await supabase.auth.getUser();
+  const me = auth.user?.id;
+  if (!me) return;
+  const { data } = await supabase.storage.from('avatars').list(me);
+  if (data?.length) await supabase.storage.from('avatars').remove(data.map((f) => `${me}/${f.name}`));
 }

@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth';
 import { RANK_COLOURS, nextRankText } from '@/lib/badges';
 import { fetchProfile } from '@/lib/data';
 import { fetchMyFollows, fetchMyVisibility, setMyVisibility, type Visibility } from '@/lib/social';
+import { openPrivacyPolicy } from '@/lib/legal';
 import { deleteMyAccount } from '@/lib/safety';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts, space } from '@/lib/theme';
@@ -188,6 +189,9 @@ export default function ProfileScreen() {
 
         <View style={{ marginTop: space.lg }}>
           <Button variant="outline" label="Sign out" onPress={() => supabase.auth.signOut()} />
+          <Pressable onPress={openPrivacyPolicy} style={{ paddingTop: space.md }}>
+            <Text style={styles.privacy}>Privacy policy</Text>
+          </Pressable>
           <Pressable onPress={confirmDelete} style={{ paddingVertical: space.md }}>
             <Text style={styles.danger}>Delete my account</Text>
           </Pressable>
@@ -216,6 +220,14 @@ const styles = StyleSheet.create({
   stat: { flex: 1, gap: space.xs },
   statValue: { fontFamily: fonts.serifLight, fontSize: 30, color: colors.goldLight },
   section: { gap: space.sm, marginTop: space.md },
+  privacy: {
+    textAlign: 'center',
+    fontFamily: fonts.sansMedium,
+    fontSize: 11,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    color: colors.soft,
+  },
   danger: {
     textAlign: 'center',
     fontFamily: fonts.sansMedium,
