@@ -1,6 +1,6 @@
 import { Link, router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BadgeTile } from '@/components/BadgeTile';
@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth';
 import { RANK_COLOURS, nextRankText } from '@/lib/badges';
 import { fetchProfile } from '@/lib/data';
 import { fetchMyFollows, fetchMyVisibility, setMyVisibility, type Visibility } from '@/lib/social';
+import { deleteMyAccount } from '@/lib/safety';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts, space } from '@/lib/theme';
 import { useJourney } from '@/lib/useJourney';
@@ -47,6 +48,24 @@ export default function ProfileScreen() {
         .catch(() => {});
     }, [session]),
   );
+
+  function confirmDelete() {
+    Alert.alert(
+      'Delete your account?',
+      'This permanently deletes your profile, visits, check-ins, follows and cheers, on the app and the website. It can’t be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete forever',
+          style: 'destructive',
+          onPress: () =>
+            deleteMyAccount().catch((e) =>
+              Alert.alert('Could not delete your account', e instanceof Error ? e.message : ''),
+            ),
+        },
+      ],
+    );
+  }
 
   async function changeVisibility(v: Visibility) {
     if (!session) return;
@@ -169,6 +188,9 @@ export default function ProfileScreen() {
 
         <View style={{ marginTop: space.lg }}>
           <Button variant="outline" label="Sign out" onPress={() => supabase.auth.signOut()} />
+          <Pressable onPress={confirmDelete} style={{ paddingVertical: space.md }}>
+            <Text style={styles.danger}>Delete my account</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -194,6 +216,14 @@ const styles = StyleSheet.create({
   stat: { flex: 1, gap: space.xs },
   statValue: { fontFamily: fonts.serifLight, fontSize: 30, color: colors.goldLight },
   section: { gap: space.sm, marginTop: space.md },
+  danger: {
+    textAlign: 'center',
+    fontFamily: fonts.sansMedium,
+    fontSize: 11,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    color: colors.danger,
+  },
   choices: { flexDirection: 'row', gap: space.sm },
   choice: {
     flex: 1,

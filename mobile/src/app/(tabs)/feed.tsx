@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Body, Button, Card, ErrorText, Eyebrow, Loading, Title } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { cheer, fetchFeed, fetchMyFollows, timeAgo, uncheer, type FeedItem } from '@/lib/social';
+import { openSafetyMenu } from '@/lib/safetyMenu';
 import { colors, fonts, space } from '@/lib/theme';
 
 export default function FeedScreen() {
@@ -96,10 +97,27 @@ export default function FeedScreen() {
         ItemSeparatorComponent={() => <View style={{ height: space.sm }} />}
         renderItem={({ item }) => (
           <Card style={{ gap: space.sm }}>
-            <Text style={styles.meta}>
-              {item.who} · {timeAgo(item.visitedAt)}
-              {item.verified ? ' · ✓ at the estate' : ''}
-            </Text>
+            <View style={styles.metaRow}>
+              <Text style={[styles.meta, { flex: 1 }]}>
+                {item.who} · {timeAgo(item.visitedAt)}
+                {item.verified ? ' · ✓ at the estate' : ''}
+              </Text>
+              {!item.mine && (
+                <Pressable
+                  hitSlop={12}
+                  accessibilityLabel="Report or block"
+                  onPress={() =>
+                    openSafetyMenu({
+                      userId: item.userId,
+                      name: item.who,
+                      checkinId: item.id,
+                      onBlocked: load,
+                    })
+                  }>
+                  <Text style={styles.more}>⋯</Text>
+                </Pressable>
+              )}
+            </View>
             <Pressable
               onPress={() => router.push({ pathname: '/estate/[id]', params: { id: item.estateId } })}>
               <Text style={styles.estate}>{item.estateName}</Text>
@@ -146,6 +164,8 @@ const styles = StyleSheet.create({
   },
   pill: { backgroundColor: colors.wine, paddingHorizontal: space.sm, paddingVertical: 2, borderRadius: 10 },
   pillText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.text },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  more: { fontSize: 20, color: colors.muted, paddingHorizontal: space.xs },
   meta: { fontFamily: fonts.sansLight, fontSize: 12, color: colors.muted },
   estate: { fontFamily: fonts.serif, fontSize: 22, color: colors.text },
   stars: { color: colors.goldLight, fontSize: 16, letterSpacing: 2 },

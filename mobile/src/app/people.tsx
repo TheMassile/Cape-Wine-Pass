@@ -16,6 +16,7 @@ import {
   type Follow,
   type Person,
 } from '@/lib/social';
+import { fetchBlocked, unblockUser } from '@/lib/safety';
 import { colors, fonts, space } from '@/lib/theme';
 
 type Follows = { following: Follow[]; followers: Follow[]; requests: Follow[] };
@@ -29,12 +30,17 @@ export default function PeopleScreen() {
   const [follows, setFollows] = useState<Follows>({ following: [], followers: [], requests: [] });
   const [people, setPeople] = useState<Map<string, Person>>(new Map());
   const [error, setError] = useState<string | null>(null);
+  const [blocked, setBlocked] = useState<string[]>([]);
 
   const loadFollows = useCallback(async () => {
     if (!myId) return;
     try {
-      const f = await fetchMyFollows(myId);
-      const ids = [...f.following.map((r) => r.followee_id), ...f.requests.map((r) => r.follower_id)];
+      const [f, b] = await Promise.all([
+        fetchMyFollows(myId),
+        fetchBlocked(myId).catch(() => [] as string[]),
+      ]);
+      setBlocked(b);
+      const ids = [...f.following.map((r) => r.followee_id), ...f.requests.map((r) => r.follower_id), ...b];
       setPeople(await fetchPeople([...new Set(ids)]));
       setFollows(f);
       setError(null);
@@ -115,6 +121,18 @@ export default function PeopleScreen() {
                     quiet
                     onPress={() => run(() => removeFollower(myId, r.follower_id))}
                   />
+                </View>
+              ))}
+            </View>
+          )}
+
+          {!showingSearch && blocked.length > 0 && (
+            <View style={{ gap: space.sm }}>
+              <Eyebrow>Blocked</Eyebrow>
+              {blocked.map((id) => (
+                <View key={id} style={styles.row}>
+                  <Text style={[styles.name, { flex: 1 }]}>{personName(people.get(id))}</Text>
+                  <SmallButton label="Unblock" quiet onPress={() => run(() => unblockUser(myId, id))} />
                 </View>
               ))}
             </View>
