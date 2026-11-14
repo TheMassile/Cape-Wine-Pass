@@ -6,18 +6,17 @@ import { Body, ErrorText, Eyebrow } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import {
   approveRequest,
-  fetchBlocked,
   fetchMyFollows,
   fetchPeople,
   follow,
   personName,
   removeFollower,
   searchPeople,
-  unblockUser,
   unfollow,
   type Follow,
   type Person,
 } from '@/lib/social';
+import { fetchBlocked, unblockUser } from '@/lib/safety';
 import { colors, fonts, space } from '@/lib/theme';
 
 type Follows = { following: Follow[]; followers: Follow[]; requests: Follow[] };

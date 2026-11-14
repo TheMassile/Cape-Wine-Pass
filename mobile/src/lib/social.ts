@@ -196,35 +196,54 @@ export function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// --- Safety: report, block, delete account ------------------------------------
+export type LeaderRow = { userId: string; who: string; score: number; mine: boolean };
+export type Leaderboards = { month: LeaderRow[]; allTime: LeaderRow[] };
 
-export async function reportContent(input: { reportedUserId: string; checkinId?: string; reason: string }) {
-  const { error } = await supabase.from('reports').insert({
-    reported_user_id: input.reportedUserId,
-    checkin_id: input.checkinId ?? null,
-    reason: input.reason,
-  });
+// You and the people you follow, ranked two ways:
+//   month:   different estates with a GPS-verified check-in this calendar month
+//   allTime: different estates ever checked in at
+export async function fetchLeaderboards(myId: string): Promise<Leaderboards> {
+  const { following } = await fetchMyFollows(myId);
+  const ids = [myId, ...following.filter((f) => f.status === 'accepted').map((f) => f.followee_id)];
+
+  const { data, error } = await supabase
+    .from('checkins')
+    .select('user_id, estate_id, verified, visited_at')
+    .in('user_id', ids);
   if (error) throw error;
-}
 
-export async function blockUser(targetId: string) {
-  const { error } = await supabase.from('blocks').insert({ blocked_id: targetId });
-  if (error && error.code !== '23505') throw error; // already blocked is fine
-}
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
 
-export async function unblockUser(myId: string, targetId: string) {
-  const { error } = await supabase.from('blocks').delete().eq('blocker_id', myId).eq('blocked_id', targetId);
-  if (error) throw error;
-}
+  const month = new Map<string, Set<string>>();
+  const allTime = new Map<string, Set<string>>();
+  for (const id of ids) {
+    month.set(id, new Set());
+    allTime.set(id, new Set());
+  }
+  for (const r of (data ?? []) as {
+    user_id: string;
+    estate_id: string;
+    verified: boolean;
+    visited_at: string;
+  }[]) {
+    allTime.get(r.user_id)?.add(r.estate_id);
+    if (r.verified && new Date(r.visited_at) >= monthStart) month.get(r.user_id)?.add(r.estate_id);
+  }
 
-export async function fetchBlocked(myId: string): Promise<string[]> {
-  const { data, error } = await supabase.from('blocks').select('blocked_id').eq('blocker_id', myId);
-  if (error) throw error;
-  return (data ?? []).map((r) => r.blocked_id as string);
-}
+  const people = await fetchPeople(ids);
+  const rank = (m: Map<string, Set<string>>): LeaderRow[] =>
+    // Leave out people whose visits we can't see (e.g. they went private).
+    ids
+      .filter((id) => id === myId || (allTime.get(id)?.size ?? 0) > 0)
+      .map((id) => ({
+        userId: id,
+        who: id === myId ? 'You' : personName(people.get(id)),
+        score: m.get(id)?.size ?? 0,
+        mine: id === myId,
+      }))
+      .sort((a, b) => b.score - a.score || a.who.localeCompare(b.who));
 
-export async function deleteMyAccount() {
-  const { error } = await supabase.rpc('delete_my_account');
-  if (error) throw error;
-  await supabase.auth.signOut();
+  return { month: rank(month), allTime: rank(allTime) };
 }

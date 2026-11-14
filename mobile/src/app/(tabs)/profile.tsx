@@ -8,13 +8,8 @@ import { Body, Button, Card, ErrorText, Eyebrow, Loading, Title } from '@/compon
 import { useAuth } from '@/lib/auth';
 import { RANK_COLOURS, nextRankText } from '@/lib/badges';
 import { fetchProfile } from '@/lib/data';
-import {
-  deleteMyAccount,
-  fetchMyFollows,
-  fetchMyVisibility,
-  setMyVisibility,
-  type Visibility,
-} from '@/lib/social';
+import { fetchMyFollows, fetchMyVisibility, setMyVisibility, type Visibility } from '@/lib/social';
+import { deleteMyAccount } from '@/lib/safety';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts, space } from '@/lib/theme';
 import { useJourney } from '@/lib/useJourney';

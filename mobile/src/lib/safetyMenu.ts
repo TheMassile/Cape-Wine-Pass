@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
 
-import { blockUser, reportContent } from './social';
+import { blockUser, reportContent } from './safety';
 
 // The "⋯" menu on someone else's post: report it, or block the person.
 export function openSafetyMenu(opts: {
