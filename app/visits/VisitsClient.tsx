@@ -69,6 +69,8 @@ export default function VisitsClient() {
   const [upvoteMap, setUpvoteMap]       = useState<Record<string, number>>({});
   const [downvoteMap, setDownvoteMap]   = useState<Record<string, number>>({});
   const [myVoteMap, setMyVoteMap]       = useState<Record<string, 1 | -1 | null>>({});
+  // Shared wine list per estate, keyed "estateId|colour" (see supabase/migrations/20261114070000_estate_wines.sql).
+  const [wineMap, setWineMap]           = useState<Record<string, string[]>>({});
   const [editStateMap, setEditStateMap] = useState<Record<string, VisitEditorState>>({});
   const [sortMode, setSortMode]         = useState<SortMode>("recent");
   const [toast, setToast]               = useState<ToastState>({ show: false, message: "", tone: "info" });
@@ -116,6 +118,13 @@ export default function VisitsClient() {
         const { data: voteData } = await supabase
           .from("estate_kid_friendly_votes").select("estate_id, vote, user_id").in("estate_id", uniqueIds);
 
+        const { data: wineData } = await supabase
+          .from("wines").select("estate_id, colour, name").in("estate_id", uniqueIds).order("name");
+        const nextWines: Record<string, string[]> = {};
+        for (const w of (wineData ?? []) as { estate_id: string; colour: string; name: string }[]) {
+          (nextWines[`${w.estate_id}|${w.colour}`] ??= []).push(w.name);
+        }
+
         const voteRows = (voteData ?? []) as VoteRow[];
         const nextUp: Record<string, number> = {};
         const nextDown: Record<string, number> = {};
@@ -135,7 +144,7 @@ export default function VisitsClient() {
         if (!cancelled) {
           setVisitRows(cleanVisits);
           setEstates(estateData as EstateRow[]);
-          setUpvoteMap(nextUp); setDownvoteMap(nextDown); setMyVoteMap(nextMyVote); setEditStateMap(nextEdit);
+          setUpvoteMap(nextUp); setDownvoteMap(nextDown); setMyVoteMap(nextMyVote); setEditStateMap(nextEdit); setWineMap(nextWines);
           setLoading(false);
         }
       } catch {
@@ -400,15 +409,21 @@ export default function VisitsClient() {
                     {(["favorite_red", "favorite_white", "favorite_rose"] as const).map(field => (
                       <div key={field}>
                         <FieldLabel>
-                          {field === "favorite_red" ? "Favourite red" : field === "favorite_white" ? "Favourite white" : "Favourite rosé"}
+                          {field === "favorite_red" ? "Favourite red" : field === "favorite_white" ? "Favourite white" : "Favourite rosé or other"}
                         </FieldLabel>
                         <input
                           type="text"
+                          list={`wines-${estate.estate_id}-${field}`}
                           value={editor[field]}
                           onChange={e => setEditStateMap(prev => ({ ...prev, [estate.estate_id]: { ...prev[estate.estate_id], [field]: e.target.value, savedMessage: "" } }))}
                           placeholder={field === "favorite_red" ? "e.g. Pinotage Reserve" : field === "favorite_white" ? "e.g. Chenin Blanc" : "e.g. Dry Rosé"}
                           style={{ width: "100%", padding: "0.7rem 1rem" }}
                         />
+                        <datalist id={`wines-${estate.estate_id}-${field}`}>
+                          {(wineMap[`${estate.estate_id}|${field === "favorite_red" ? "red" : field === "favorite_white" ? "white" : "rose_other"}`] ?? []).map(name => (
+                            <option key={name} value={name} />
+                          ))}
+                        </datalist>
                       </div>
                     ))}
                   </div>

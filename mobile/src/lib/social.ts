@@ -2,6 +2,7 @@
 // see supabase/migrations/20261114030000_follows_feed_cheers.sql.
 import { fetchEstates } from './data';
 import { supabase } from './supabase';
+import { favouritesLine } from './wines';
 
 export type Person = { user_id: string; handle: string | null; display_name: string | null };
 export type Visibility = 'public' | 'friends' | 'private';
@@ -118,6 +119,7 @@ export type FeedItem = {
   rating: number | null;
   note: string | null;
   verified: boolean;
+  favourites: string;
   cheers: number;
   cheeredByMe: boolean;
   mine: boolean;
@@ -130,7 +132,9 @@ export async function fetchFeed(myId: string): Promise<FeedItem[]> {
 
   const { data, error } = await supabase
     .from('checkins')
-    .select('id, user_id, estate_id, visited_at, rating, note, verified, cheers(user_id)')
+    .select(
+      'id, user_id, estate_id, visited_at, rating, note, verified, fav_red, fav_white, fav_rose, cheers(user_id)',
+    )
     .in('user_id', ids)
     .neq('source', 'import')
     .order('visited_at', { ascending: false })
@@ -145,6 +149,9 @@ export async function fetchFeed(myId: string): Promise<FeedItem[]> {
     rating: number | null;
     note: string | null;
     verified: boolean;
+    fav_red: string | null;
+    fav_white: string | null;
+    fav_rose: string | null;
     cheers: { user_id: string }[] | null;
   };
   const rows = (data ?? []) as Row[];
@@ -168,6 +175,7 @@ export async function fetchFeed(myId: string): Promise<FeedItem[]> {
       rating: r.rating,
       note: r.note,
       verified: r.verified,
+      favourites: favouritesLine(r),
       cheers: cheers.length,
       cheeredByMe: cheers.some((c) => c.user_id === myId),
       mine: r.user_id === myId,

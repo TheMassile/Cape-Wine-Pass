@@ -126,6 +126,7 @@ export default function FeedScreen() {
             {item.rating != null && (
               <Text style={styles.stars}>{'★'.repeat(item.rating) + '☆'.repeat(5 - item.rating)}</Text>
             )}
+            {!!item.favourites && <Text style={styles.wines}>{item.favourites}</Text>}
             {!!item.note && <Body>{item.note}</Body>}
             {item.mine ? (
               item.cheers > 0 && (
@@ -169,6 +170,7 @@ const styles = StyleSheet.create({
   meta: { fontFamily: fonts.sansLight, fontSize: 12, color: colors.muted },
   estate: { fontFamily: fonts.serif, fontSize: 22, color: colors.text },
   stars: { color: colors.goldLight, fontSize: 16, letterSpacing: 2 },
+  wines: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 20, color: colors.text },
   cheer: { alignSelf: 'flex-start', paddingVertical: space.xs },
   cheerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.soft },
 });

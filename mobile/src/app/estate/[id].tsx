@@ -3,10 +3,21 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Body, Button, Card, ErrorText, Eyebrow, Loading, Title } from '@/components/ui';
+import { WinePicker } from '@/components/WinePicker';
 import { useAuth } from '@/lib/auth';
 import { addCheckin, fetchEstate, fetchMyCheckins, type Checkin, type Estate } from '@/lib/data';
 import { AT_ESTATE_METRES, distanceMetres, formatDistance, getMyLocation, type Coords } from '@/lib/location';
 import { colors, fonts, space } from '@/lib/theme';
+import {
+  NO_FAVS,
+  WINE_COLOURS,
+  addWine,
+  favouritesLine,
+  fetchMyFavourites,
+  fetchWineList,
+  type FavWines,
+  type WineList,
+} from '@/lib/wines';
 
 export default function EstateScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,13 +34,23 @@ export default function EstateScreen() {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [here, setHere] = useState<Coords | null>(null);
+  const [wines, setWines] = useState<WineList>({ red: [], white: [], rose_other: [] });
+  const [myFavs, setMyFavs] = useState<FavWines>(NO_FAVS);
+  const [favs, setFavs] = useState<FavWines>(NO_FAVS);
 
   const refresh = useCallback(() => {
     if (!userId || !id) return Promise.resolve();
-    return Promise.all([fetchEstate(id), fetchMyCheckins(userId, id)])
-      .then(([e, h]) => {
+    return Promise.all([
+      fetchEstate(id),
+      fetchMyCheckins(userId, id),
+      fetchWineList(id),
+      fetchMyFavourites(userId, id),
+    ])
+      .then(([e, h, w, f]) => {
         setEstate(e);
         setHistory(h);
+        setWines(w);
+        setMyFavs(f);
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Could not load this estate.'));
   }, [id, userId]);
@@ -46,7 +67,9 @@ export default function EstateScreen() {
 
   const located = estate.latitude != null && estate.longitude != null;
   const distance =
-    here && located ? distanceMetres(here, { latitude: estate.latitude!, longitude: estate.longitude! }) : null;
+    here && located
+      ? distanceMetres(here, { latitude: estate.latitude!, longitude: estate.longitude! })
+      : null;
   const atEstate = distance != null && distance <= AT_ESTATE_METRES;
 
   async function save() {
@@ -63,10 +86,12 @@ export default function EstateScreen() {
         note: note.trim() || null,
         latitude: pos?.latitude ?? null,
         longitude: pos?.longitude ?? null,
+        favourites: favs,
       });
       setComposing(false);
       setRating(null);
       setNote('');
+      setFavs(NO_FAVS);
       setSavedMsg(history.length === 0 ? 'First visit logged. Cheers!' : 'Visit logged. Cheers!');
       await refresh();
     } catch (e) {
@@ -106,21 +131,51 @@ export default function EstateScreen() {
         {error && <ErrorText message={error} />}
 
         {!composing ? (
-          <Button label={history.length ? 'Log another visit' : 'Check in'} onPress={() => { setSavedMsg(null); setComposing(true); }} />
+          <Button
+            label={history.length ? 'Log another visit' : 'Check in'}
+            onPress={() => {
+              setSavedMsg(null);
+              setFavs(NO_FAVS);
+              setComposing(true);
+            }}
+          />
         ) : (
           <Card style={{ gap: space.sm }}>
             <Eyebrow>How was it?</Eyebrow>
             <View style={styles.stars}>
               {[1, 2, 3, 4, 5].map((n) => (
-                <Pressable key={n} onPress={() => setRating(rating === n ? null : n)} hitSlop={8} accessibilityLabel={`${n} stars`}>
-                  <Text style={[styles.star, rating != null && n <= rating && { color: colors.goldLight }]}>★</Text>
+                <Pressable
+                  key={n}
+                  onPress={() => setRating(rating === n ? null : n)}
+                  hitSlop={8}
+                  accessibilityLabel={`${n} stars`}>
+                  <Text style={[styles.star, rating != null && n <= rating && { color: colors.goldLight }]}>
+                    ★
+                  </Text>
                 </Pressable>
               ))}
             </View>
+            {WINE_COLOURS.map((c) => (
+              <WinePicker
+                key={c.key}
+                label={c.label}
+                value={favs[c.field]}
+                options={wines[c.key]}
+                onChange={(name) => setFavs((f) => ({ ...f, [c.field]: name }))}
+                onAdd={async (name) => {
+                  const clean = await addWine(estate.id, c.key, name);
+                  setWines((w) => ({
+                    ...w,
+                    [c.key]: [...w[c.key], clean].sort((a, b) => a.localeCompare(b)),
+                  }));
+                  return clean;
+                }}
+              />
+            ))}
             <TextInput
               value={note}
               onChangeText={setNote}
-              placeholder="Wines you loved, the view, the food…"
+              placeholder="The view, the food, the company…"
               placeholderTextColor={colors.muted}
               multiline
               style={styles.note}
@@ -137,16 +192,30 @@ export default function EstateScreen() {
           </Card>
         )}
 
+        {!!favouritesLine(myFavs) && (
+          <>
+            <Eyebrow>Your favourites here</Eyebrow>
+            <Text style={styles.wines}>{favouritesLine(myFavs)}</Text>
+          </>
+        )}
+
         <Eyebrow>Your visits here ({history.length})</Eyebrow>
         {history.length === 0 && <Body muted>Not visited yet.</Body>}
         {history.map((c) => (
           <Card key={c.id} style={{ gap: 4 }}>
             <Text style={styles.when}>
-              {new Date(c.visited_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {new Date(c.visited_at).toLocaleDateString('en-ZA', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
               {c.rating ? `  ·  ${'★'.repeat(c.rating)}` : ''}
             </Text>
+            {!!favouritesLine(c) && <Text style={styles.wines}>{favouritesLine(c)}</Text>}
             {c.note && <Body>{c.note}</Body>}
-            <Pressable onPress={() => router.push({ pathname: '/share', params: { checkinId: c.id } })} hitSlop={8}>
+            <Pressable
+              onPress={() => router.push({ pathname: '/share', params: { checkinId: c.id } })}
+              hitSlop={8}>
               <Text style={styles.shareLink}>Share</Text>
             </Pressable>
           </Card>
@@ -170,6 +239,7 @@ const styles = StyleSheet.create({
     padding: space.sm,
     textAlignVertical: 'top',
   },
+  wines: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 20, color: colors.text },
   when: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.goldLight },
   shareLink: {
     alignSelf: 'flex-start',
