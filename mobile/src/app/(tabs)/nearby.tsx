@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -41,7 +41,10 @@ export default function NearbyScreen() {
     if (!here || !estates) return [];
     return estates
       .filter((e) => e.latitude != null && e.longitude != null)
-      .map((e) => ({ estate: e, metres: distanceMetres(here, { latitude: e.latitude!, longitude: e.longitude! }) }))
+      .map((e) => ({
+        estate: e,
+        metres: distanceMetres(here, { latitude: e.latitude!, longitude: e.longitude! }),
+      }))
       .sort((a, b) => a.metres - b.metres)
       .slice(0, SHOW);
   }, [here, estates]);
@@ -54,7 +57,9 @@ export default function NearbyScreen() {
         <View style={styles.empty}>
           <Eyebrow>Near me</Eyebrow>
           <Title>Where are you?</Title>
-          <Body>Allow location access to see the wine estates closest to you, and to check in when you arrive.</Body>
+          <Body>
+            Allow location access to see the wine estates closest to you, and to check in when you arrive.
+          </Body>
           <Button label="Try again" onPress={locate} />
           <Button variant="outline" label="Open phone settings" onPress={() => Linking.openSettings()} />
         </View>
@@ -71,18 +76,18 @@ export default function NearbyScreen() {
             </View>
           }
           renderItem={({ item }) => (
-            <Link href={{ pathname: '/estate/[id]', params: { id: item.estate.id } }} asChild>
-              <Pressable style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={styles.name}>{item.estate.name}</Text>
-                  <Body muted style={{ fontSize: 12 }}>
-                    {item.estate.region}
-                    {visited.has(item.estate.id) ? '  ·  Visited ✓' : ''}
-                  </Body>
-                </View>
-                <Text style={styles.distance}>{formatDistance(item.metres)}</Text>
-              </Pressable>
-            </Link>
+            <Pressable
+              onPress={() => router.push({ pathname: '/estate/[id]', params: { id: item.estate.id } })}
+              style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={styles.name}>{item.estate.name}</Text>
+                <Body muted style={{ fontSize: 12 }}>
+                  {item.estate.region}
+                  {visited.has(item.estate.id) ? '  ·  Visited ✓' : ''}
+                </Body>
+              </View>
+              <Text style={styles.distance}>{formatDistance(item.metres)}</Text>
+            </Pressable>
           )}
         />
       )}

@@ -1,4 +1,4 @@
-import { Link, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -45,10 +45,7 @@ export default function ExploreScreen() {
     }, [show, fetchAll]),
   );
 
-  const regions = useMemo<RegionProgress[]>(
-    () => regionProgress(estates ?? [], visited),
-    [estates, visited],
-  );
+  const regions = useMemo<RegionProgress[]>(() => regionProgress(estates ?? [], visited), [estates, visited]);
 
   if (!estates && !error) return <Loading />;
 
@@ -83,17 +80,17 @@ export default function ExploreScreen() {
           </View>
         }
         renderItem={({ item }) => (
-          <Link href={{ pathname: '/region/[region]', params: { region: item.name } }} asChild>
-            <Pressable style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
-              <View style={{ flex: 1, gap: space.sm }}>
-                <Text style={styles.regionName}>{item.name}</Text>
-                <ProgressBar value={item.total ? item.visited / item.total : 0} />
-              </View>
-              <Body style={styles.count}>
-                {item.total > 0 && item.visited === item.total ? '★ Complete' : `${item.visited}/${item.total}`}
-              </Body>
-            </Pressable>
-          </Link>
+          <Pressable
+            onPress={() => router.push({ pathname: '/region/[region]', params: { region: item.name } })}
+            style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
+            <View style={{ flex: 1, gap: space.sm }}>
+              <Text style={styles.regionName}>{item.name}</Text>
+              <ProgressBar value={item.total ? item.visited / item.total : 0} />
+            </View>
+            <Body style={styles.count}>
+              {item.total > 0 && item.visited === item.total ? '★ Complete' : `${item.visited}/${item.total}`}
+            </Body>
+          </Pressable>
         )}
       />
     </SafeAreaView>
