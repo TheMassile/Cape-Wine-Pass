@@ -1,6 +1,6 @@
-import { Link } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Link, router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BadgeTile } from '@/components/BadgeTile';
@@ -8,6 +8,7 @@ import { Body, Button, Card, ErrorText, Eyebrow, Loading, Title } from '@/compon
 import { useAuth } from '@/lib/auth';
 import { RANK_COLOURS, nextRankText } from '@/lib/badges';
 import { fetchProfile } from '@/lib/data';
+import { fetchMyFollows, fetchMyVisibility, setMyVisibility, type Visibility } from '@/lib/social';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts, space } from '@/lib/theme';
 import { useJourney } from '@/lib/useJourney';
@@ -18,10 +19,47 @@ export default function ProfileScreen() {
   const { summary, error, reload } = useJourney();
   const [refreshing, setRefreshing] = useState(false);
 
+  const [counts, setCounts] = useState({ followers: 0, following: 0, requests: 0 });
+  const [visibility, setVisibility] = useState<Visibility | null>(null);
+  const [visError, setVisError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!session) return;
-    fetchProfile(session.user.id).then(setProfile).catch(() => setProfile(null));
+    fetchProfile(session.user.id)
+      .then(setProfile)
+      .catch(() => setProfile(null));
+    fetchMyVisibility(session.user.id)
+      .then(setVisibility)
+      .catch(() => setVisibility(null));
   }, [session]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!session) return;
+      fetchMyFollows(session.user.id)
+        .then((f) =>
+          setCounts({
+            followers: f.followers.length,
+            following: f.following.filter((x) => x.status === 'accepted').length,
+            requests: f.requests.length,
+          }),
+        )
+        .catch(() => {});
+    }, [session]),
+  );
+
+  async function changeVisibility(v: Visibility) {
+    if (!session) return;
+    const before = visibility;
+    setVisibility(v);
+    setVisError(null);
+    try {
+      await setMyVisibility(session.user.id, v);
+    } catch (e) {
+      setVisibility(before);
+      setVisError(e instanceof Error ? e.message : 'Could not save.');
+    }
+  }
 
   if (!summary && !error) return <Loading />;
 
@@ -70,6 +108,23 @@ export default function ProfileScreen() {
               </Card>
             </View>
 
+            <Pressable onPress={() => router.push('/people')} style={styles.stats}>
+              <Card style={styles.stat}>
+                <Eyebrow>Followers</Eyebrow>
+                <Text style={styles.statValue}>{counts.followers}</Text>
+              </Card>
+              <Card style={styles.stat}>
+                <Eyebrow>Following</Eyebrow>
+                <Text style={styles.statValue}>{counts.following}</Text>
+              </Card>
+              <Card style={styles.stat}>
+                <Eyebrow>Requests</Eyebrow>
+                <Text style={[styles.statValue, counts.requests > 0 && { color: colors.wineLight }]}>
+                  {counts.requests}
+                </Text>
+              </Card>
+            </Pressable>
+
             {summary.nextUp.length > 0 && (
               <View style={styles.section}>
                 <Eyebrow>Next up</Eyebrow>
@@ -94,6 +149,24 @@ export default function ProfileScreen() {
           </>
         )}
 
+        <View style={styles.section}>
+          <Eyebrow>Who can see your visits</Eyebrow>
+          <View style={styles.choices}>
+            {VISIBILITY.map((o) => (
+              <Pressable
+                key={o.value}
+                onPress={() => changeVisibility(o.value)}
+                style={[styles.choice, visibility === o.value && styles.choiceOn]}>
+                <Text style={[styles.choiceLabel, visibility === o.value && { color: colors.text }]}>
+                  {o.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          <Body muted>{VISIBILITY.find((o) => o.value === visibility)?.help ?? ''}</Body>
+          {visError && <ErrorText message={visError} />}
+        </View>
+
         <View style={{ marginTop: space.lg }}>
           <Button variant="outline" label="Sign out" onPress={() => supabase.auth.signOut()} />
         </View>
@@ -101,6 +174,16 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
+
+const VISIBILITY: { value: Visibility; label: string; help: string }[] = [
+  { value: 'public', label: 'Everyone', help: 'Anyone can follow you and see your check-ins.' },
+  {
+    value: 'friends',
+    label: 'Followers',
+    help: 'People must ask to follow you, and only approved followers see your check-ins.',
+  },
+  { value: 'private', label: 'Only me', help: 'Nobody can follow you or see your check-ins.' },
+];
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
@@ -111,6 +194,16 @@ const styles = StyleSheet.create({
   stat: { flex: 1, gap: space.xs },
   statValue: { fontFamily: fonts.serifLight, fontSize: 30, color: colors.goldLight },
   section: { gap: space.sm, marginTop: space.md },
+  choices: { flexDirection: 'row', gap: space.sm },
+  choice: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: space.sm,
+    alignItems: 'center',
+  },
+  choiceOn: { backgroundColor: colors.wine, borderColor: colors.wineLight },
+  choiceLabel: { fontFamily: fonts.sansMedium, fontSize: 11, letterSpacing: 1, color: colors.soft },
   link: {
     marginTop: space.md,
     fontFamily: fonts.sansMedium,

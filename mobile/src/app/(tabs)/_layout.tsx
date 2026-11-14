@@ -17,6 +17,10 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Label>Near me</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="location" md="near_me" />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="feed">
+        <NativeTabs.Trigger.Label>Feed</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="person.2" md="group" />
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>You</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="person.crop.circle" md="person" />

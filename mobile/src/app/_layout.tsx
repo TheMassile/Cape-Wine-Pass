@@ -50,6 +50,7 @@ function RootStack() {
         <Stack.Screen name="region/[region]" options={{ title: '' }} />
         <Stack.Screen name="estate/[id]" options={{ title: '' }} />
         <Stack.Screen name="badges" options={{ title: 'Badges' }} />
+        <Stack.Screen name="people" options={{ title: 'People' }} />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
