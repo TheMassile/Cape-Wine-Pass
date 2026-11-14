@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import FeaturedSpots from "./components/FeaturedSpots";
 
 const features = [
   {
@@ -212,6 +213,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Sponsored spots (only shows when one is running) */}
+      <FeaturedSpots />
 
       {/* Divider */}
       <div style={{ width: "100%", height: "1px", background: "linear-gradient(to right, transparent, rgba(184,150,90,0.3), transparent)" }} />
