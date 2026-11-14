@@ -1,4 +1,4 @@
-import { Link, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -57,15 +57,19 @@ export default function RegionScreen() {
             item.restaurant === 'Y' && 'Restaurant',
           ].filter(Boolean);
           return (
-            <Link href={{ pathname: '/estate/[id]', params: { id: item.id } }} asChild>
-            <Pressable style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
+            <Pressable
+              onPress={() => router.push({ pathname: '/estate/[id]', params: { id: item.id } })}
+              style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={styles.name}>{item.name}</Text>
-                {tags.length > 0 && <Body muted style={styles.tags}>{tags.join(' · ')}</Body>}
+                {tags.length > 0 && (
+                  <Body muted style={styles.tags}>
+                    {tags.join(' · ')}
+                  </Body>
+                )}
               </View>
               {isVisited && <Text style={styles.visited}>Visited ✓</Text>}
             </Pressable>
-            </Link>
           );
         }}
       />

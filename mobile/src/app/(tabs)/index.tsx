@@ -1,14 +1,13 @@
-import { Link } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Body, ErrorText, Eyebrow, Loading, ProgressBar, Title } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
+import { regionProgress, type RegionProgress } from '@/lib/badges';
 import { fetchEstates, fetchVisitedIds, type Estate } from '@/lib/data';
 import { colors, fonts, space } from '@/lib/theme';
-
-type RegionRow = { name: string; total: number; visited: number };
 
 export default function ExploreScreen() {
   const { session } = useAuth();
@@ -39,20 +38,14 @@ export default function ExploreScreen() {
 
   const load = useCallback(() => show(fetchAll()), [show, fetchAll]);
 
-  useEffect(() => {
-    show(fetchAll());
-  }, [show, fetchAll]);
+  // Reload each time you come back to this tab, so new check-ins count straight away.
+  useFocusEffect(
+    useCallback(() => {
+      show(fetchAll());
+    }, [show, fetchAll]),
+  );
 
-  const regions = useMemo<RegionRow[]>(() => {
-    const map = new Map<string, RegionRow>();
-    for (const e of estates ?? []) {
-      const row = map.get(e.region) ?? { name: e.region, total: 0, visited: 0 };
-      row.total += 1;
-      if (visited.has(e.id)) row.visited += 1;
-      map.set(e.region, row);
-    }
-    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
-  }, [estates, visited]);
+  const regions = useMemo<RegionProgress[]>(() => regionProgress(estates ?? [], visited), [estates, visited]);
 
   if (!estates && !error) return <Loading />;
 
@@ -87,17 +80,17 @@ export default function ExploreScreen() {
           </View>
         }
         renderItem={({ item }) => (
-          <Link href={{ pathname: '/region/[region]', params: { region: item.name } }} asChild>
-            <Pressable style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
-              <View style={{ flex: 1, gap: space.sm }}>
-                <Text style={styles.regionName}>{item.name}</Text>
-                <ProgressBar value={item.total ? item.visited / item.total : 0} />
-              </View>
-              <Body style={styles.count}>
-                {item.visited}/{item.total}
-              </Body>
-            </Pressable>
-          </Link>
+          <Pressable
+            onPress={() => router.push({ pathname: '/region/[region]', params: { region: item.name } })}
+            style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
+            <View style={{ flex: 1, gap: space.sm }}>
+              <Text style={styles.regionName}>{item.name}</Text>
+              <ProgressBar value={item.total ? item.visited / item.total : 0} />
+            </View>
+            <Body style={styles.count}>
+              {item.total > 0 && item.visited === item.total ? '★ Complete' : `${item.visited}/${item.total}`}
+            </Body>
+          </Pressable>
         )}
       />
     </SafeAreaView>
