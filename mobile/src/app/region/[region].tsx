@@ -1,6 +1,6 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Body, ErrorText, Eyebrow, Loading, ProgressBar } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
@@ -57,13 +57,15 @@ export default function RegionScreen() {
             item.restaurant === 'Y' && 'Restaurant',
           ].filter(Boolean);
           return (
-            <View style={styles.row}>
+            <Link href={{ pathname: '/estate/[id]', params: { id: item.id } }} asChild>
+            <Pressable style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={styles.name}>{item.name}</Text>
                 {tags.length > 0 && <Body muted style={styles.tags}>{tags.join(' · ')}</Body>}
               </View>
               {isVisited && <Text style={styles.visited}>Visited ✓</Text>}
-            </View>
+            </Pressable>
+            </Link>
           );
         }}
       />
