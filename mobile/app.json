@@ -48,6 +48,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "themasile",
+    "extra": {
+      "eas": {
+        "projectId": "5bb26d73-6933-435b-9bc5-bfb2d5b77159"
+      }
     }
   }
 }
