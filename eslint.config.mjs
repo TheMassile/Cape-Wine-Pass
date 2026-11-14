@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The phone app has its own linting (run inside mobile/).
+    "mobile/**",
+    "scripts/output/**",
   ]),
 ]);
 
